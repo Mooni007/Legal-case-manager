@@ -23,7 +23,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        /* ========== COMPLETE CSS - PROFESSIONAL LEGAL THEME ========== */
+        /* ========== PROFESSIONAL LEGAL THEME ========== */
         :root {
             --primary: #1a237e;
             --primary-light: #534bae;
@@ -137,17 +137,23 @@
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
         
-        /* Toast */
+        /* Professional Toast Notification */
         .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: var(--surface); padding: 14px 18px; border-radius: 12px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; min-width: 300px; border-left: 4px solid; animation: slideIn 0.3s; }
+        .toast { background: var(--surface); padding: 16px 20px; border-radius: 16px; box-shadow: var(--shadow-xl); display: flex; align-items: center; gap: 14px; min-width: 320px; border-left: 5px solid; animation: slideIn 0.3s; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(100px); } }
-        .toast.success { border-left-color: var(--success); }
-        .toast.error { border-left-color: var(--error); }
-        .toast.warning { border-left-color: var(--warning); }
-        .toast.info { border-left-color: var(--info); }
+        .toast.success { border-left-color: var(--success); background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%); }
+        .toast.success i { color: var(--success); font-size: 24px; }
+        .toast.error { border-left-color: var(--error); background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%); }
+        .toast.error i { color: var(--error); font-size: 24px; }
+        .toast.warning { border-left-color: var(--warning); background: linear-gradient(135deg, #ffffff 0%, #fff8f0 100%); }
+        .toast.warning i { color: var(--warning); font-size: 24px; }
+        .toast.info { border-left-color: var(--info); background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%); }
+        .toast.info i { color: var(--info); font-size: 24px; }
         .toast-content { flex: 1; }
-        .toast-title { font-weight: 600; margin-bottom: 4px; }
+        .toast-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; color: var(--text); }
         .toast-message { font-size: 13px; color: var(--text-secondary); }
+        .toast-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.15s; }
+        .toast-close:hover { background: rgba(0,0,0,0.05); color: var(--text); }
         
         /* Loading Overlay */
         .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); display: flex; justify-content: center; align-items: center; z-index: 3000; }
@@ -266,127 +272,38 @@
         }
         const state = new StateManager();
 
-        // ========== FIREBASE SERVICE (FIXED - NO TERMINATION) ==========
+        // ========== FIREBASE SERVICE ==========
         class FirebaseService {
-            constructor() { 
-                this.db = null; 
-                this.online = navigator.onLine;
-                this.initialized = false;
-            }
+            constructor() { this.db = null; this.online = navigator.onLine; this.initialized = false; }
             
             async init() {
                 if (this.initialized) return true;
-                
                 try {
-                    // Initialize Firebase
-                    if (!firebase.apps.length) {
-                        firebase.initializeApp(FIREBASE_CONFIG);
-                    }
-                    
+                    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
                     this.db = firebase.firestore();
-                    
-                    // Enable offline persistence - but don't clear or terminate
-                    try { 
-                        await this.db.enablePersistence({ synchronizeTabs: true });
-                        console.log('✅ Offline persistence enabled');
-                    } catch(e) {
-                        if(e.code === 'failed-precondition') {
-                            console.warn('⚠️ Multiple tabs open - offline mode limited');
-                        } else if(e.code === 'unimplemented') {
-                            console.warn('⚠️ Browser does not support offline persistence');
-                        }
-                        // Continue anyway - app works without persistence
-                    }
-
-                    // Setup connection monitoring via browser events
+                    try { await this.db.enablePersistence({ synchronizeTabs: true }); console.log('✅ Offline persistence enabled'); } catch(e) { console.warn('Persistence:', e.code); }
                     this.setupConnectionMonitoring();
-                    
                     this.initialized = true;
-                    console.log('✅ Firebase initialized successfully');
                     return true;
-                    
-                } catch(e) {
-                    console.error('❌ Firebase init error:', e);
-                    // Even if Firebase fails, we can work offline
-                    this.initialized = true;
-                    return false;
-                }
+                } catch(e) { console.error('Firebase init error:', e); this.initialized = true; return false; }
             }
             
             setupConnectionMonitoring() {
-                const updateStatus = (isOnline) => {
-                    this.online = isOnline;
-                    state.setState({ isOnline });
-                    const el = document.getElementById('connectionStatus');
-                    if(el) { 
-                        el.classList.toggle('offline', !isOnline); 
-                        el.querySelector('span').textContent = isOnline ? 'Online' : 'Offline';
-                        el.querySelector('i').style.color = isOnline ? 'var(--success)' : 'var(--error)';
-                    }
-                };
-                
-                window.addEventListener('online', () => updateStatus(true));
-                window.addEventListener('offline', () => updateStatus(false));
-                updateStatus(navigator.onLine);
+                const update = (isOnline) => { this.online = isOnline; state.setState({ isOnline }); const el = document.getElementById('connectionStatus'); if(el) { el.classList.toggle('offline', !isOnline); el.querySelector('span').textContent = isOnline ? 'Online' : 'Offline'; } };
+                window.addEventListener('online', () => update(true));
+                window.addEventListener('offline', () => update(false));
+                update(navigator.onLine);
             }
             
-            async create(col, data) {
-                if (!this.db) return { id: 'local_' + Date.now() };
-                const ref = await this.db.collection(col).add({
-                    ...data, 
-                    currency: CURRENCY.code, 
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                return { id: ref.id };
-            }
-            
-            async read(col, constraints = []) {
-                if (!this.db) return [];
-                try {
-                    let q = this.db.collection(col);
-                    constraints.forEach(c => { 
-                        if(c.type === 'orderBy') q = q.orderBy(c.field, c.dir || 'asc'); 
-                    });
-                    const snap = await q.get();
-                    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                } catch(e) {
-                    console.error(`Read error for ${col}:`, e);
-                    return [];
-                }
-            }
-            
-            async update(col, id, data) {
-                if (!this.db) return;
-                await this.db.collection(col).doc(id).update({
-                    ...data, 
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            }
-            
-            async delete(col, id) {
-                if (!this.db) return;
-                await this.db.collection(col).doc(id).delete();
-            }
-            
-            listen(col, cb) {
-                if (!this.db) return () => {};
-                return this.db.collection(col).onSnapshot(snap => {
-                    const docs = []; 
-                    snap.docChanges().forEach(c => docs.push({
-                        id: c.doc.id, 
-                        ...c.doc.data(), 
-                        changeType: c.type
-                    }));
-                    cb(docs);
-                }, error => { 
-                    console.error(`Listen error for ${col}:`, error); 
-                });
-            }
+            async create(col, data) { const ref = await this.db.collection(col).add({...data, currency: CURRENCY.code, createdAt: firebase.firestore.FieldValue.serverTimestamp()}); return { id: ref.id }; }
+            async read(col, constraints = []) { let q = this.db.collection(col); constraints.forEach(c => { if(c.type === 'orderBy') q = q.orderBy(c.field, c.dir || 'asc'); }); const snap = await q.get(); return snap.docs.map(d => ({ id: d.id, ...d.data() })); }
+            async update(col, id, data) { await this.db.collection(col).doc(id).update({...data, updatedAt: firebase.firestore.FieldValue.serverTimestamp()}); }
+            async delete(col, id) { await this.db.collection(col).doc(id).delete(); }
+            listen(col, cb) { return this.db.collection(col).onSnapshot(snap => { const docs = []; snap.docChanges().forEach(c => docs.push({ id: c.doc.id, ...c.doc.data(), changeType: c.type })); cb(docs); }, error => console.error(`Listen error:`, error)); }
         }
-        
         const fb = new FirebaseService();
 
-        // ========== UI CONTROLLER ==========
+        // ========== UI CONTROLLER (ENHANCED TOAST) ==========
         class UIController {
             constructor() {
                 this.modalO = document.getElementById('modalOverlay');
@@ -395,27 +312,37 @@
                 this.loading = document.getElementById('loadingOverlay');
             }
             
-            toast(msg, type = 'info', title = '') {
-                const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
-                const t = document.createElement('div'); 
-                t.className = `toast ${type}`;
-                t.innerHTML = `<i class="fas fa-${icons[type] || icons.info}"></i><div class="toast-content">${title ? `<div class="toast-title">${title}</div>` : ''}<div class="toast-message">${msg}</div></div>`;
-                this.toastC.appendChild(t); 
-                setTimeout(() => t.remove(), 5000);
+            showSuccess(message, title = 'Success!') {
+                const t = document.createElement('div'); t.className = 'toast success';
+                t.innerHTML = `<i class="fas fa-check-circle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+                this.toastC.appendChild(t); setTimeout(() => t.remove(), 4000);
             }
             
-            showLoading(s) { 
-                this.loading.style.display = s ? 'flex' : 'none'; 
+            showError(message, title = 'Error!') {
+                const t = document.createElement('div'); t.className = 'toast error';
+                t.innerHTML = `<i class="fas fa-exclamation-circle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+                this.toastC.appendChild(t); setTimeout(() => t.remove(), 5000);
             }
             
-            openModal(html) { 
-                this.modalC.innerHTML = html; 
-                this.modalO.classList.add('active'); 
+            showWarning(message, title = 'Warning!') {
+                const t = document.createElement('div'); t.className = 'toast warning';
+                t.innerHTML = `<i class="fas fa-exclamation-triangle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+                this.toastC.appendChild(t); setTimeout(() => t.remove(), 4000);
             }
             
-            closeModal() { 
-                this.modalO.classList.remove('active'); 
-                app.currentModalData = null; 
+            showInfo(message, title = 'Information') {
+                const t = document.createElement('div'); t.className = 'toast info';
+                t.innerHTML = `<i class="fas fa-info-circle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+                this.toastC.appendChild(t); setTimeout(() => t.remove(), 4000);
+            }
+            
+            showLoading(s) { this.loading.style.display = s ? 'flex' : 'none'; }
+            openModal(html) { this.modalC.innerHTML = html; this.modalO.classList.add('active'); }
+            closeModal() { this.modalO.classList.remove('active'); app.currentModalData = null; }
+            
+            clearModalForm() {
+                const inputs = this.modalC.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => { if(input.type !== 'button' && input.type !== 'submit') input.value = ''; });
             }
             
             renderDashboard() {
@@ -497,10 +424,20 @@
             
             renderProceedings() {
                 const proceedings = state.getState('proceedings');
+                // Group proceedings by case for better organization
+                const cases = state.getState('cases');
+                
                 document.getElementById('proceedingsView').innerHTML = `
+                    <div class="filters-section">
+                        <button class="btn btn-primary" onclick="app.navigateTo('cases')"><i class="fas fa-plus"></i> Add Proceeding from Cases</button>
+                        <span style="margin-left:auto;">Total Proceedings: ${proceedings.length}</span>
+                    </div>
                     <div class="data-table-container">
-                        <table class="data-table"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Proceeding Date</th><th>Type</th><th>Next Date</th><th>Outcome</th></tr></thead>
-                        <tbody>${proceedings.map(p=>`<tr><td>${p.caseNumber||''}</td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.proceedingDate||''}</td><td>${p.proceedingType||''}</td><td>${p.nextDate||''}</td><td>${p.outcome||''}</td></tr>`).join('') || '<tr><td colspan="7" style="text-align:center;">No proceedings recorded</td></tr>'}</tbody></table>
+                        <table class="data-table"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Proceeding Date</th><th>Type</th><th>Next Date</th><th>Outcome</th><th></th></tr></thead>
+                        <tbody>${proceedings.map(p=>{ 
+                            const caseData = cases.find(c => c.id === p.caseId);
+                            return `<tr><td><strong>${p.caseNumber||''}</strong></td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.proceedingDate||''}</td><td>${p.proceedingType||''}</td><td style="color:var(--primary);font-weight:600;">${p.nextDate||''}</td><td>${p.outcome||'Pending'}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.viewCase('${p.caseId}')"><i class="fas fa-eye"></i></button></div></td></tr>`; 
+                        }).join('') || '<tr><td colspan="8" style="text-align:center;">No proceedings recorded. Add proceedings from the Cases section.</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
@@ -543,34 +480,19 @@
             
             async initialize() {
                 this.ui.showLoading(true);
-                
                 try {
-                    // Initialize Firebase
                     await fb.init();
-                    
-                    // Setup listeners
                     this.setupEventListeners();
                     this.setupStateSubscriptions();
-                    
-                    // Load data
                     await this.loadData();
-                    
-                    // Setup real-time listeners
                     this.setupRealtimeListeners();
-                    
-                    // Navigate to dashboard
                     this.navigateTo('dashboard');
-                    
-                    // Start periodic check for proceedings
                     setInterval(() => this.checkTomorrowProceedings(), 3600000);
-                    
-                    this.ui.toast('System ready', 'success', 'Welcome to Legal Case Manager Pro');
-                    
+                    this.ui.showSuccess('System ready for use', 'Welcome to Legal Case Manager Pro');
                 } catch(e) {
                     console.error('Init error:', e);
-                    // Even with errors, try to show dashboard with empty data
                     this.navigateTo('dashboard');
-                    this.ui.toast('Working in offline mode', 'warning', 'Limited functionality');
+                    this.ui.showWarning('Working in offline mode', 'Limited functionality');
                 } finally {
                     this.ui.showLoading(false);
                 }
@@ -625,6 +547,17 @@
                     });
                     state.setState({clients: [...cur]});
                 });
+                
+                fb.listen('proceedings', (changes) => {
+                    const cur = state.getState('proceedings');
+                    changes.forEach(ch => {
+                        const idx = cur.findIndex(p => p.id === ch.id);
+                        if(ch.changeType === 'removed' && idx !== -1) cur.splice(idx, 1);
+                        else if(idx !== -1) cur[idx] = {...cur[idx], ...ch};
+                        else if(ch.changeType !== 'removed') cur.push(ch);
+                    });
+                    state.setState({proceedings: [...cur]});
+                });
             }
             
             async loadData() {
@@ -636,7 +569,6 @@
                     state.setState({cases, clients, billings, proceedings});
                 } catch(e) {
                     console.error('Load error:', e);
-                    // Set empty arrays if load fails
                     state.setState({cases: [], clients: [], billings: [], proceedings: []});
                 }
             }
@@ -658,7 +590,7 @@
                 const upcoming = state.computed.upcomingProceedings();
                 this.ui.updateBadges();
                 if(upcoming.length > 0) {
-                    this.ui.toast(`${upcoming.length} proceeding(s) scheduled for tomorrow`, 'info', 'Upcoming Proceedings');
+                    this.ui.showInfo(`${upcoming.length} proceeding(s) scheduled for tomorrow`, 'Upcoming Proceedings');
                 }
             }
             
@@ -666,10 +598,10 @@
                 if('Notification' in window) {
                     const permission = await Notification.requestPermission();
                     if(permission === 'granted') {
-                        this.ui.toast('Notifications enabled', 'success');
-                        new Notification('Legal Case Manager Pro', { body: 'You will receive alerts for upcoming proceedings!', icon: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' rx=\'20\' fill=\'%231a237e\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E⚖️%3C/text%3E%3C/svg%3E' });
+                        this.ui.showSuccess('Notifications enabled successfully', 'Permission Granted');
+                        new Notification('Legal Case Manager Pro', { body: 'You will receive alerts for upcoming proceedings!' });
                     } else {
-                        this.ui.toast('Notification permission denied', 'warning');
+                        this.ui.showWarning('Notification permission denied', 'Permission Denied');
                     }
                 }
             }
@@ -715,25 +647,38 @@
                     };
                     if(id) await fb.update('cases', id, data);
                     else await fb.create('cases', data);
-                    this.ui.toast(`Case ${id?'updated':'created'} successfully`, 'success');
+                    
+                    this.ui.showSuccess(`Case ${caseNumber} has been ${id?'updated':'registered'} successfully`, id?'Case Updated':'Case Created');
                     await this.loadData();
                     this.ui.closeModal();
-                } catch(e) { this.ui.toast(e.message, 'error', 'Save Failed'); }
-                finally { this.isSaving = false; btn.disabled = false; }
+                } catch(e) { 
+                    this.ui.showError(e.message, 'Save Failed'); 
+                    btn.disabled = false;
+                } finally { 
+                    this.isSaving = false; 
+                }
             }
             
             editCase(id) { const c = state.getState('cases').find(c=>c.id===id); if(c) this.showCaseModal(c); }
             
+            viewCase(id) {
+                const c = state.getState('cases').find(c=>c.id===id);
+                if(c) {
+                    this.navigateTo('cases');
+                    setTimeout(() => this.ui.showInfo(`Case: ${c.caseNumber}\nClient: ${c.clientName}\nCourt: ${c.courtCategory}`, 'Case Details'), 100);
+                }
+            }
+            
             async deleteCase(id) { 
-                if(!confirm('Delete this case?')) return; 
+                if(!confirm('Delete this case permanently?')) return; 
                 await fb.delete('cases', id); 
-                this.ui.toast('Case deleted', 'success'); 
+                this.ui.showSuccess('Case has been deleted', 'Case Deleted');
                 await this.loadData(); 
             }
             
             showClientModal(clientData = null) {
                 this.ui.openModal(`
-                    <div class="modal-header"><h3>${clientData?'Edit Client':'New Client'}</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="modal-header"><h3>${clientData?'Edit Client':'New Client Registration'}</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
                     <div class="modal-body">
                         <div class="form-group"><label>Full Name <span class="required">*</span></label><input class="form-input" id="fullName" value="${clientData?.fullName||''}" required></div>
                         <div class="form-row"><div class="form-group"><label>Mobile <span class="required">*</span></label><input class="form-input" id="mobile" value="${clientData?.mobile||''}" required></div><div class="form-group"><label>Email</label><input type="email" class="form-input" id="email" value="${clientData?.email||''}"></div></div>
@@ -754,25 +699,30 @@
                     const data = { fullName, mobile, email: document.getElementById('email').value, address: document.getElementById('address').value };
                     if(id) await fb.update('clients', id, data);
                     else await fb.create('clients', data);
-                    this.ui.toast(`Client ${id?'updated':'created'} successfully`, 'success');
+                    
+                    this.ui.showSuccess(`Client ${fullName} has been ${id?'updated':'registered'} successfully`, id?'Client Updated':'Client Created');
                     await this.loadData();
                     this.ui.closeModal();
-                } catch(e) { this.ui.toast(e.message, 'error'); }
-                finally { this.isSaving = false; btn.disabled = false; }
+                } catch(e) { 
+                    this.ui.showError(e.message, 'Save Failed'); 
+                    btn.disabled = false;
+                } finally { 
+                    this.isSaving = false; 
+                }
             }
             
             editClient(id) { const c = state.getState('clients').find(c=>c.id===id); if(c) this.showClientModal(c); }
             
             async deleteClient(id) { 
-                if(!confirm('Delete this client?')) return; 
+                if(!confirm('Delete this client permanently?')) return; 
                 await fb.delete('clients', id); 
-                this.ui.toast('Client deleted', 'success'); 
+                this.ui.showSuccess('Client has been deleted', 'Client Deleted');
                 await this.loadData(); 
             }
             
             showBillingModal(caseId = null) {
                 const cases = state.getState('cases').filter(c=>(c.totalFees||0)>0);
-                if(!cases.length) { this.ui.toast('No cases with fees found', 'warning'); return; }
+                if(!cases.length) { this.ui.showWarning('No cases with fees found. Please add case fees first.', 'No Cases'); return; }
                 this.ui.openModal(`
                     <div class="modal-header"><h3>Record Payment</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
                     <div class="modal-body">
@@ -788,10 +738,10 @@
             async saveBilling() {
                 const caseId = document.getElementById('billingCaseId').value;
                 const amount = parseFloat(document.getElementById('paymentAmount').value);
-                if(!caseId || !amount) return this.ui.toast('Select case and enter amount', 'error');
+                if(!caseId || !amount) return this.ui.showError('Select case and enter amount', 'Invalid Input');
                 const data = { caseId, amount, paymentMethod: document.getElementById('paymentMethod').value, paymentDate: document.getElementById('paymentDate').value, description: document.getElementById('paymentDescription').value, invoiceNumber: 'INV-'+Date.now().toString().slice(-8) };
                 const res = await fb.create('billings', data);
-                this.ui.toast('Payment recorded successfully', 'success');
+                this.ui.showSuccess(`Payment of ${CURRENCY.format(amount)} recorded successfully`, 'Payment Recorded');
                 await this.loadData();
                 this.ui.closeModal();
                 this.generateInvoice(res.id);
@@ -812,8 +762,8 @@
                     doc.text(`Advocate: ${APP_CONFIG.advocate.name}`,20,65); doc.text(`Client: ${cl?.fullName||''}`,120,65);
                     doc.autoTable({ startY:80, head:[['Description','Amount (PKR)']], body:[['Total Fees',CURRENCY.format(c?.totalFees||0)],['This Payment',CURRENCY.format(b.amount)],['Total Paid',CURRENCY.format(paid)],['Balance Due',CURRENCY.format(due)]], theme:'grid', headStyles:{fillColor:[26,35,126]} });
                     doc.save(`Invoice_${b.invoiceNumber}.pdf`);
-                    this.ui.toast('Invoice downloaded', 'success');
-                } catch(e) { this.ui.toast('PDF generation failed', 'error'); }
+                    this.ui.showSuccess('Invoice PDF downloaded', 'Invoice Generated');
+                } catch(e) { this.ui.showError('PDF generation failed', 'Error'); }
             }
             
             shareViaWhatsApp(billingId) {
@@ -822,13 +772,14 @@
                 const c = state.getState('cases').find(x=>x.id===b.caseId);
                 const msg = `*Payment Receipt*\nInvoice: ${b.invoiceNumber}\nAmount: ${CURRENCY.format(b.amount)}\nCase: ${c?.caseNumber||''}\nThank you!`;
                 window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+                this.ui.showInfo('Opening WhatsApp...', 'Share Invoice');
             }
             
             async deleteBilling(id) { 
                 if(!confirm('Delete payment record?')) return; 
                 await fb.delete('billings', id); 
                 await this.loadData(); 
-                this.ui.toast('Payment record deleted', 'success'); 
+                this.ui.showSuccess('Payment record deleted', 'Record Deleted');
             }
             
             addProceeding(caseId) {
@@ -841,31 +792,32 @@
                         <div class="form-group"><label>Description</label><textarea class="form-textarea" id="proceedingDesc"></textarea></div>
                         <div class="form-row"><div class="form-group"><label>Next Date <span class="required">*</span></label><input type="date" class="form-input" id="nextDate" required></div><div class="form-group"><label>Outcome</label><input class="form-input" id="outcome"></div></div>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.saveProceeding('${caseId}')">Save</button></div>
+                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.saveProceeding('${caseId}')">Save Proceeding</button></div>
                 `);
             }
             
             async saveProceeding(caseId) {
                 const nextDate = document.getElementById('nextDate').value;
-                if(!nextDate) return this.ui.toast('Next date required', 'error');
+                if(!nextDate) return this.ui.showError('Next date is required', 'Invalid Input');
                 const c = state.getState('cases').find(x=>x.id===caseId);
                 const data = { caseId, caseNumber: c?.caseNumber, clientName: c?.clientName, courtCategory: c?.courtCategory, proceedingDate: document.getElementById('proceedingDate').value, proceedingType: document.getElementById('proceedingType').value, description: document.getElementById('proceedingDesc').value, nextDate, outcome: document.getElementById('outcome').value, notified: false };
                 await fb.create('proceedings', data);
                 await fb.update('cases', caseId, { nextDate });
-                this.ui.toast('Proceeding saved', 'success');
+                this.ui.showSuccess(`Proceeding recorded for case ${c?.caseNumber}`, 'Proceeding Saved');
                 await this.loadData();
                 this.ui.closeModal();
+                this.checkTomorrowProceedings();
             }
             
             sendAllNotifications() { 
                 const upcoming = state.computed.upcomingProceedings();
-                if(upcoming.length === 0) { this.ui.toast('No upcoming proceedings', 'info'); return; }
+                if(upcoming.length === 0) { this.ui.showInfo('No upcoming proceedings', 'Notifications'); return; }
                 upcoming.forEach(p => {
                     if('Notification' in window && Notification.permission === 'granted') {
-                        new Notification('Proceeding Reminder', { body: `${p.caseNumber} - ${p.clientName}\n${p.nextDate} - ${p.courtCategory}` });
+                        new Notification('⚖️ Proceeding Reminder', { body: `${p.caseNumber} - ${p.clientName}\n${p.nextDate} - ${p.courtCategory}` });
                     }
                 });
-                this.ui.toast(`${upcoming.length} notifications sent`, 'success');
+                this.ui.showSuccess(`${upcoming.length} notification(s) sent`, 'Notifications Sent');
             }
         }
 
