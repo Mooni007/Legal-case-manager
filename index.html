@@ -23,7 +23,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        /* ----- CSS Variables & Reset ----- */
+        /* ========== COMPLETE CSS ========== */
         :root {
             --primary: #1a237e;
             --primary-light: #534bae;
@@ -92,7 +92,7 @@
         .view { animation: fadeIn 0.2s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* Stats Grid - Mobile First */
+        /* Stats Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
         @media (min-width: 600px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (min-width: 900px) { .stats-grid { grid-template-columns: repeat(6, 1fr); } }
@@ -152,7 +152,6 @@
         .spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Mobile Sidebar */
         @media (max-width: 768px) {
             .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 500; transform: translateX(-100%); }
             .sidebar.mobile-open { transform: translateX(0); }
@@ -168,13 +167,11 @@
     </style>
 </head>
 <body>
-    <!-- Loading Overlay (hidden by default via style attribute? We'll control via class) -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
     </div>
 
     <div class="app-container">
-        <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="advocate-avatar"><i class="fas fa-gavel"></i></div>
@@ -197,7 +194,6 @@
             </div>
         </nav>
 
-        <!-- Main -->
         <main class="main-content">
             <header class="top-header">
                 <div class="header-left">
@@ -234,12 +230,12 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // ---------- CONFIGURATION ----------
+        // ========== CONFIGURATION ==========
         const CURRENCY = { code: 'PKR', symbol: 'Rs.', name: 'Pakistani Rupee', format: (amt) => 'Rs. ' + (amt || 0).toLocaleString('en-PK') };
         const FIREBASE_CONFIG = { apiKey: "AIzaSyB3F60BhQd1W2AzRfepKlULcJTEPlFvVGw", authDomain: "legal-case-management-pro.firebaseapp.com", projectId: "legal-case-management-pro", storageBucket: "legal-case-management-pro.firebasestorage.app", messagingSenderId: "1018024873539", appId: "1:1018024873539:web:f3661732b4ded21c90cef6" };
         const APP_CONFIG = { appName: "Legal Case Manager Pro", advocate: { name: "MIAN SHAMAS ABBAS", title: "Most Experienced Advocate High Court" }, courts: ["Supreme Court of Pakistan","Lahore High Court","Islamabad High Court","Sindh High Court","Peshawar High Court","District & Sessions Court","Civil Court","Family Court","Consumer Court"], caseStatuses: ["Active","Pending","Disposed","Adjourned","Reserved","Settled"], proceedingTypes: ["Hearing","Evidence","Arguments","Cross Examination","Filing"] };
 
-        // ---------- STATE MANAGER ----------
+        // ========== STATE MANAGER ==========
         class StateManager {
             constructor() {
                 this.state = { isOnline: navigator.onLine, cases:[], clients:[], billings:[], proceedings:[], filters:{ searchTerm:'', courtFilter:'all', statusFilter:'all' }, activeView:'dashboard' };
@@ -269,20 +265,60 @@
         }
         const state = new StateManager();
 
-        // ---------- FIREBASE SERVICE ----------
+        // ========== FIREBASE SERVICE (FIXED) ==========
         class FirebaseService {
             constructor() { this.db=null; this.online=true; }
             async init() {
-                if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-                this.db = firebase.firestore();
-                try { await this.db.enablePersistence(); } catch(e){}
-                this.db.collection('.info/connected').on('value', snap => {
-                    this.online = snap.val()===true;
-                    state.setState({isOnline:this.online});
-                    const el = document.getElementById('connectionStatus');
-                    if(el) { el.classList.toggle('offline',!this.online); el.querySelector('span').textContent = this.online?'Online':'Offline'; }
-                });
-                return true;
+                try {
+                    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+                    this.db = firebase.firestore();
+                    
+                    // Enable offline persistence
+                    try { 
+                        await this.db.enablePersistence({ synchronizeTabs: true });
+                        console.log('✅ Offline persistence enabled');
+                    } catch(e) {
+                        if(e.code === 'failed-precondition') console.warn('Multiple tabs open');
+                        else if(e.code === 'unimplemented') console.warn('Browser not supported');
+                    }
+
+                    // FIXED: Correct way to monitor connection status
+                    const connectedRef = firebase.database ? firebase.database().ref('.info/connected') : null;
+                    
+                    // Alternative: Use window online/offline events
+                    window.addEventListener('online', () => {
+                        this.online = true;
+                        state.setState({isOnline: true});
+                        this.updateConnectionUI(true);
+                    });
+                    window.addEventListener('offline', () => {
+                        this.online = false;
+                        state.setState({isOnline: false});
+                        this.updateConnectionUI(false);
+                    });
+
+                    // Also try Firestore network detection
+                    try {
+                        await this.db.terminate();
+                        await this.db.clearPersistence();
+                    } catch(e) {}
+
+                    this.updateConnectionUI(navigator.onLine);
+                    state.setState({isOnline: navigator.onLine});
+                    
+                    return true;
+                } catch(e) {
+                    console.error('Firebase init error:', e);
+                    return false;
+                }
+            }
+            updateConnectionUI(isOnline) {
+                const el = document.getElementById('connectionStatus');
+                if(el) { 
+                    el.classList.toggle('offline', !isOnline); 
+                    el.querySelector('span').textContent = isOnline ? 'Online' : 'Offline';
+                    el.querySelector('i').style.color = isOnline ? 'var(--success)' : 'var(--error)';
+                }
             }
             async create(col, data) {
                 const ref = await this.db.collection(col).add({...data, currency:CURRENCY.code, createdAt: firebase.firestore.FieldValue.serverTimestamp()});
@@ -300,14 +336,15 @@
             async delete(col, id) { await this.db.collection(col).doc(id).delete(); }
             listen(col, cb) {
                 return this.db.collection(col).onSnapshot(snap => {
-                    const docs = []; snap.docChanges().forEach(c=>docs.push({id:c.doc.id,...c.doc.data(),changeType:c.type}));
+                    const docs = []; 
+                    snap.docChanges().forEach(c=>docs.push({id:c.doc.id,...c.doc.data(),changeType:c.type}));
                     cb(docs);
-                });
+                }, error => { console.error('Listen error:', error); });
             }
         }
         const fb = new FirebaseService();
 
-        // ---------- UI CONTROLLER (FULLY IMPLEMENTED) ----------
+        // ========== UI CONTROLLER ==========
         class UIController {
             constructor() {
                 this.modalO = document.getElementById('modalOverlay');
@@ -340,12 +377,12 @@
                     <div class="data-table-container">
                         <div class="table-header"><span class="table-title">Recent Cases</span><button class="btn btn-primary" onclick="app.showCaseModal()"><i class="fas fa-plus"></i> New</button></div>
                         <table class="data-table"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Status</th><th></th></tr></thead>
-                        <tbody>${recent.map(c=>`<tr><td>${c.caseNumber||''}</td><td>${c.clientName||''}</td><td>${c.courtCategory||''}</td><td><span class="status-badge ${c.status?.toLowerCase()}">${c.status}</span></td><td><div class="action-buttons"><button class="btn-table" onclick="app.editCase('${c.id}')"><i class="fas fa-edit"></i></button></div></td></tr>`).join('') || '<tr><td colspan="5" class="text-center">No cases</td></tr>'}</tbody></table>
+                        <tbody>${recent.map(c=>`<tr><td>${c.caseNumber||''}</td><td>${c.clientName||''}</td><td>${c.courtCategory||''}</td><td><span class="status-badge ${c.status?.toLowerCase()||'pending'}">${c.status||'Pending'}</span></td><td><div class="action-buttons"><button class="btn-table" onclick="app.editCase('${c.id}')"><i class="fas fa-edit"></i></button></div></td></tr>`).join('') || '<tr><td colspan="5" style="text-align:center;">No cases yet</td></tr>'}</tbody></table>
                     </div>
                     <div class="data-table-container">
                         <div class="table-header"><span class="table-title">Tomorrow's Proceedings (${upcoming.length})</span></div>
                         <table class="data-table"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Next Date</th></tr></thead>
-                        <tbody>${upcoming.map(p=>`<tr><td>${p.caseNumber}</td><td>${p.clientName}</td><td>${p.courtCategory}</td><td>${p.nextDate}</td></tr>`).join('') || '<tr><td colspan="4">None</td></tr>'}</tbody></table>
+                        <tbody>${upcoming.map(p=>`<tr><td>${p.caseNumber||''}</td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.nextDate||''}</td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center;">No proceedings tomorrow</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
@@ -363,7 +400,7 @@
                     </div>
                     <div class="data-table-container">
                         <table class="data-table"><thead><tr><th>Case No.</th><th>Title</th><th>Client</th><th>Court</th><th>Filing Date</th><th>Fees</th><th>Status</th><th></th></tr></thead>
-                        <tbody>${filtered.map(c=>`<tr><td>${c.caseNumber||''}</td><td>${c.caseTitle||''}</td><td>${c.clientName||''}</td><td>${c.courtCategory||''}</td><td>${c.filingDate||''}</td><td>${CURRENCY.format(c.totalFees)}</td><td><span class="status-badge ${c.status?.toLowerCase()}">${c.status}</span></td><td><div class="action-buttons"><button class="btn-table" onclick="app.editCase('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-table delete" onclick="app.deleteCase('${c.id}')"><i class="fas fa-trash"></i></button><button class="btn-table" onclick="app.showBillingModal('${c.id}')"><i class="fas fa-rupee-sign"></i></button><button class="btn-table" onclick="app.addProceeding('${c.id}')"><i class="fas fa-calendar-plus"></i></button></div></td></tr>`).join('') || '<tr><td colspan="8">No cases found</td></tr>'}</tbody></table>
+                        <tbody>${filtered.map(c=>`<tr><td>${c.caseNumber||''}</td><td>${c.caseTitle||''}</td><td>${c.clientName||''}</td><td>${c.courtCategory||''}</td><td>${c.filingDate||''}</td><td>${CURRENCY.format(c.totalFees)}</td><td><span class="status-badge ${c.status?.toLowerCase()||'pending'}">${c.status||'Pending'}</span></td><td><div class="action-buttons"><button class="btn-table" onclick="app.editCase('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-table delete" onclick="app.deleteCase('${c.id}')"><i class="fas fa-trash"></i></button><button class="btn-table" onclick="app.showBillingModal('${c.id}')"><i class="fas fa-rupee-sign"></i></button><button class="btn-table" onclick="app.addProceeding('${c.id}')"><i class="fas fa-calendar-plus"></i></button></div></td></tr>`).join('') || '<tr><td colspan="8" style="text-align:center;">No cases found</td></tr>'}</tbody></table>
                     </div>
                 `;
                 document.getElementById('courtFilter').onchange=(e)=>state.setState({filters:{...filters,courtFilter:e.target.value}});
@@ -376,7 +413,7 @@
                     <div class="filters-section"><button class="btn btn-primary" onclick="app.showClientModal()"><i class="fas fa-user-plus"></i> New Client</button></div>
                     <div class="data-table-container">
                         <table class="data-table"><thead><tr><th>Name</th><th>Mobile</th><th>Email</th><th>Address</th><th>Cases</th><th></th></tr></thead>
-                        <tbody>${clients.map(c=>{ const cc = cases.filter(cs=>cs.clientId===c.id).length; return `<tr><td>${c.fullName}</td><td>${c.mobile}</td><td>${c.email||''}</td><td>${c.address||''}</td><td>${cc}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.editClient('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-table delete" onclick="app.deleteClient('${c.id}')"><i class="fas fa-trash"></i></button></div></td></tr>`; }).join('') || '<tr><td colspan="6">No clients</td></tr>'}</tbody></table>
+                        <tbody>${clients.map(c=>{ const cc = cases.filter(cs=>cs.clientId===c.id).length; return `<tr><td>${c.fullName||''}</td><td>${c.mobile||''}</td><td>${c.email||''}</td><td>${c.address||''}</td><td>${cc}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.editClient('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-table delete" onclick="app.deleteClient('${c.id}')"><i class="fas fa-trash"></i></button></div></td></tr>`; }).join('') || '<tr><td colspan="6" style="text-align:center;">No clients</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
@@ -393,7 +430,7 @@
                     <div class="filters-section"><button class="btn btn-primary" onclick="app.showBillingModal()"><i class="fas fa-plus"></i> Record Payment</button></div>
                     <div class="data-table-container">
                         <table class="data-table"><thead><tr><th>Invoice #</th><th>Case</th><th>Client</th><th>Amount</th><th>Method</th><th>Date</th><th></th></tr></thead>
-                        <tbody>${billings.map(b=>{ const c = cases.find(cs=>cs.id===b.caseId); return `<tr><td>${b.invoiceNumber}</td><td>${c?.caseNumber||''}</td><td>${c?.clientName||''}</td><td>${CURRENCY.format(b.amount)}</td><td>${b.paymentMethod}</td><td>${b.paymentDate}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.generateInvoice('${b.id}')"><i class="fas fa-file-pdf"></i></button><button class="btn-table" onclick="app.shareViaWhatsApp('${b.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-table delete" onclick="app.deleteBilling('${b.id}')"><i class="fas fa-trash"></i></button></div></td></tr>`; }).join('') || '<tr><td colspan="7">No payments</td></tr>'}</tbody></table>
+                        <tbody>${billings.map(b=>{ const c = cases.find(cs=>cs.id===b.caseId); return `<tr><td>${b.invoiceNumber||''}</td><td>${c?.caseNumber||''}</td><td>${c?.clientName||''}</td><td>${CURRENCY.format(b.amount)}</td><td>${b.paymentMethod||''}</td><td>${b.paymentDate||''}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.generateInvoice('${b.id}')"><i class="fas fa-file-pdf"></i></button><button class="btn-table" onclick="app.shareViaWhatsApp('${b.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-table delete" onclick="app.deleteBilling('${b.id}')"><i class="fas fa-trash"></i></button></div></td></tr>`; }).join('') || '<tr><td colspan="7" style="text-align:center;">No payments recorded</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
@@ -402,7 +439,7 @@
                 document.getElementById('proceedingsView').innerHTML = `
                     <div class="data-table-container">
                         <table class="data-table"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Proceeding Date</th><th>Type</th><th>Next Date</th><th>Outcome</th></tr></thead>
-                        <tbody>${proceedings.map(p=>`<tr><td>${p.caseNumber}</td><td>${p.clientName}</td><td>${p.courtCategory}</td><td>${p.proceedingDate}</td><td>${p.proceedingType}</td><td>${p.nextDate}</td><td>${p.outcome||''}</td></tr>`).join('') || '<tr><td colspan="7">No proceedings</td></tr>'}</tbody></table>
+                        <tbody>${proceedings.map(p=>`<tr><td>${p.caseNumber||''}</td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.proceedingDate||''}</td><td>${p.proceedingType||''}</td><td>${p.nextDate||''}</td><td>${p.outcome||''}</td></tr>`).join('') || '<tr><td colspan="7" style="text-align:center;">No proceedings</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
@@ -412,7 +449,7 @@
                     <div class="data-table-container">
                         <div class="table-header"><span>Tomorrow's Proceedings (${upcoming.length})</span><button class="btn btn-secondary" onclick="app.sendAllNotifications()"><i class="fas fa-bell"></i> Notify All</button></div>
                         <table class="data-table"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Next Date</th><th>Type</th></tr></thead>
-                        <tbody>${upcoming.map(p=>`<tr><td>${p.caseNumber}</td><td>${p.clientName}</td><td>${p.courtCategory}</td><td>${p.nextDate}</td><td>${p.proceedingType}</td></tr>`).join('') || '<tr><td colspan="5">None</td></tr>'}</tbody></table>
+                        <tbody>${upcoming.map(p=>`<tr><td>${p.caseNumber||''}</td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.nextDate||''}</td><td>${p.proceedingType||''}</td></tr>`).join('') || '<tr><td colspan="5" style="text-align:center;">No upcoming proceedings</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
@@ -423,7 +460,7 @@
             }
         }
 
-        // ---------- MAIN APPLICATION (FULLY IMPLEMENTED) ----------
+        // ========== MAIN APPLICATION ==========
         class LegalCaseManager {
             constructor() {
                 this.ui = new UIController();
@@ -438,6 +475,8 @@
                     state.subscribe('cases', () => this.ui.updateBadges());
                     state.subscribe('filters', () => { if(state.getState('activeView')==='cases') this.ui.renderCases(); });
                     await this.loadData();
+                    
+                    // Setup real-time listeners
                     fb.listen('cases', (changes) => {
                         const cur = state.getState('cases');
                         changes.forEach(ch => {
@@ -448,6 +487,7 @@
                         });
                         state.setState({cases:[...cur]});
                     });
+                    
                     fb.listen('clients', (changes) => {
                         const cur = state.getState('clients');
                         changes.forEach(ch => {
@@ -458,9 +498,12 @@
                         });
                         state.setState({clients:[...cur]});
                     });
+                    
                     this.navigateTo('dashboard');
+                    this.ui.toast('System ready', 'success', 'Welcome');
                 } catch(e) {
-                    this.ui.toast('Initialization error: '+e.message, 'error');
+                    console.error('Init error:', e);
+                    this.ui.toast('Initialization error: ' + e.message, 'error');
                 } finally {
                     this.ui.showLoading(false);
                 }
@@ -472,9 +515,7 @@
                 document.getElementById('refreshData').onclick=()=>this.loadData();
                 document.getElementById('globalSearch').oninput=(e)=>state.setState({filters:{...state.getState('filters'),searchTerm:e.target.value}});
                 document.getElementById('notificationBell').onclick=()=>this.navigateTo('notifications');
-                document.getElementById('logoutBtn').onclick=()=>{ if(confirm('Clear data?')) { localStorage.clear(); location.reload(); } };
-                window.addEventListener('online',()=>state.setState({isOnline:true}));
-                window.addEventListener('offline',()=>state.setState({isOnline:false}));
+                document.getElementById('logoutBtn').onclick=()=>{ if(confirm('Clear all data and reload?')) { localStorage.clear(); location.reload(); } };
                 document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') this.ui.closeModal(); });
             }
             async loadData() {
@@ -484,14 +525,18 @@
                     const billings = await fb.read('billings',[{type:'orderBy',field:'paymentDate',dir:'desc'}]);
                     const proceedings = await fb.read('proceedings',[{type:'orderBy',field:'nextDate',dir:'asc'}]);
                     state.setState({cases,clients,billings,proceedings});
-                } catch(e) { this.ui.toast('Failed to load data', 'error'); }
+                    this.ui.toast('Data loaded', 'success');
+                } catch(e) { 
+                    console.error('Load error:', e);
+                    this.ui.toast('Failed to load data', 'error'); 
+                }
             }
             navigateTo(view) {
                 document.querySelectorAll('.nav-item').forEach(i=>i.classList.toggle('active', i.dataset.view===view));
                 document.querySelectorAll('.view').forEach(v=>v.style.display='none');
                 document.getElementById(`${view}View`).style.display='block';
                 state.setState({activeView:view});
-                document.getElementById('pageTitle').textContent = {dashboard:'Dashboard',cases:'Case Management',clients:'Client Management',billing:'Billing & Invoices',proceedings:'Proceedings',notifications:'Notifications'}[view];
+                document.getElementById('pageTitle').textContent = {dashboard:'Dashboard',cases:'Case Management',clients:'Client Management',billing:'Billing & Invoices',proceedings:'Proceedings',notifications:'Notifications'}[view] || view;
                 if(view==='dashboard') this.ui.renderDashboard();
                 else if(view==='cases') this.ui.renderCases();
                 else if(view==='clients') this.ui.renderClients();
@@ -529,7 +574,7 @@
                     const client = state.getState('clients').find(c=>c.id===clientId);
                     const data = {
                         caseNumber, caseTitle: document.getElementById('caseTitle').value,
-                        clientId, clientName: client.fullName,
+                        clientId, clientName: client?.fullName || '',
                         courtCategory: document.getElementById('courtCategory').value,
                         caseType: document.getElementById('caseType').value,
                         filingDate: document.getElementById('filingDate').value,
@@ -540,14 +585,14 @@
                     };
                     if(id) await fb.update('cases', id, data);
                     else await fb.create('cases', data);
-                    this.ui.toast(`Case ${id?'updated':'created'}`, 'success');
+                    this.ui.toast(`Case ${id?'updated':'created'} successfully`, 'success');
                     await this.loadData();
                     this.ui.closeModal();
-                } catch(e) { this.ui.toast(e.message, 'error'); }
+                } catch(e) { this.ui.toast(e.message, 'error', 'Save Failed'); }
                 finally { this.isSaving = false; btn.disabled = false; }
             }
             editCase(id) { const c = state.getState('cases').find(c=>c.id===id); if(c) this.showCaseModal(c); }
-            async deleteCase(id) { if(!confirm('Delete case?')) return; await fb.delete('cases', id); this.ui.toast('Case deleted', 'success'); await this.loadData(); }
+            async deleteCase(id) { if(!confirm('Delete this case?')) return; await fb.delete('cases', id); this.ui.toast('Case deleted', 'success'); await this.loadData(); }
             showClientModal(clientData=null) {
                 this.ui.openModal(`
                     <div class="modal-header"><h3>${clientData?'Edit Client':'New Client'}</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
@@ -562,6 +607,7 @@
             async saveClient(id) {
                 if(this.isSaving) return;
                 this.isSaving = true;
+                const btn = event.target; btn.disabled = true;
                 try {
                     const fullName = document.getElementById('fullName').value.trim();
                     const mobile = document.getElementById('mobile').value.trim();
@@ -569,35 +615,35 @@
                     const data = { fullName, mobile, email: document.getElementById('email').value, address: document.getElementById('address').value };
                     if(id) await fb.update('clients', id, data);
                     else await fb.create('clients', data);
-                    this.ui.toast(`Client ${id?'updated':'created'}`, 'success');
+                    this.ui.toast(`Client ${id?'updated':'created'} successfully`, 'success');
                     await this.loadData();
                     this.ui.closeModal();
                 } catch(e) { this.ui.toast(e.message, 'error'); }
-                finally { this.isSaving = false; }
+                finally { this.isSaving = false; btn.disabled = false; }
             }
             editClient(id) { const c = state.getState('clients').find(c=>c.id===id); if(c) this.showClientModal(c); }
-            async deleteClient(id) { if(!confirm('Delete client?')) return; await fb.delete('clients', id); this.ui.toast('Client deleted', 'success'); await this.loadData(); }
+            async deleteClient(id) { if(!confirm('Delete this client?')) return; await fb.delete('clients', id); this.ui.toast('Client deleted', 'success'); await this.loadData(); }
             showBillingModal(caseId=null) {
-                const cases = state.getState('cases').filter(c=>c.totalFees>0);
-                if(!cases.length) { this.ui.toast('No cases with fees', 'warning'); return; }
+                const cases = state.getState('cases').filter(c=>(c.totalFees||0)>0);
+                if(!cases.length) { this.ui.toast('No cases with fees found', 'warning'); return; }
                 this.ui.openModal(`
                     <div class="modal-header"><h3>Record Payment</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
                     <div class="modal-body">
-                        <div class="form-group"><label>Select Case</label><select class="form-select" id="billingCaseId" required><option value="">Select</option>${cases.map(c=>{ const paid=state.getState('billings').filter(b=>b.caseId===c.id).reduce((s,b)=>s+b.amount,0); return `<option value="${c.id}" data-due="${c.totalFees-paid}" ${caseId===c.id?'selected':''}>${c.caseNumber} - ${c.clientName} (Due: ${CURRENCY.format(c.totalFees-paid)})</option>`; }).join('')}</select></div>
+                        <div class="form-group"><label>Select Case</label><select class="form-select" id="billingCaseId" required><option value="">Select</option>${cases.map(c=>{ const paid=state.getState('billings').filter(b=>b.caseId===c.id).reduce((s,b)=>s+b.amount,0); return `<option value="${c.id}" ${caseId===c.id?'selected':''}>${c.caseNumber} - ${c.clientName} (Due: ${CURRENCY.format(c.totalFees-paid)})</option>`; }).join('')}</select></div>
                         <div class="form-row"><div class="form-group"><label>Amount (${CURRENCY.symbol})</label><input type="number" class="form-input" id="paymentAmount" min="1" required></div><div class="form-group"><label>Method</label><select class="form-select" id="paymentMethod"><option>Cash</option><option>Bank Transfer</option><option>JazzCash/EasyPaisa</option></select></div></div>
                         <div class="form-group"><label>Date</label><input type="date" class="form-input" id="paymentDate" value="${new Date().toISOString().split('T')[0]}"></div>
                         <div class="form-group"><label>Description</label><textarea class="form-textarea" id="paymentDescription"></textarea></div>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.saveBilling()">Record</button></div>
+                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.saveBilling()">Record Payment</button></div>
                 `);
             }
             async saveBilling() {
                 const caseId = document.getElementById('billingCaseId').value;
                 const amount = parseFloat(document.getElementById('paymentAmount').value);
-                if(!caseId || !amount) return this.ui.toast('Select case and amount', 'error');
+                if(!caseId || !amount) return this.ui.toast('Select case and enter amount', 'error');
                 const data = { caseId, amount, paymentMethod: document.getElementById('paymentMethod').value, paymentDate: document.getElementById('paymentDate').value, description: document.getElementById('paymentDescription').value, invoiceNumber: 'INV-'+Date.now().toString().slice(-8) };
                 const res = await fb.create('billings', data);
-                this.ui.toast('Payment recorded', 'success');
+                this.ui.toast('Payment recorded successfully', 'success');
                 await this.loadData();
                 this.ui.closeModal();
                 this.generateInvoice(res.id);
@@ -611,23 +657,23 @@
                     const c = state.getState('cases').find(x=>x.id===b.caseId);
                     const cl = state.getState('clients').find(x=>x.id===b.clientId);
                     const paid = state.getState('billings').filter(x=>x.caseId===b.caseId).reduce((s,x)=>s+x.amount,0);
-                    const due = (c.totalFees||0) - paid;
+                    const due = (c?.totalFees||0) - paid;
                     doc.setFontSize(20); doc.setTextColor(26,35,126); doc.text('INVOICE',105,20,{align:'center'});
                     doc.setFontSize(10); doc.text(`Invoice #: ${b.invoiceNumber}`,20,40); doc.text(`Date: ${b.paymentDate}`,20,48);
-                    doc.text(`Advocate: ${APP_CONFIG.advocate.name}`,20,65); doc.text(`Client: ${cl?.fullName}`,120,65);
+                    doc.text(`Advocate: ${APP_CONFIG.advocate.name}`,20,65); doc.text(`Client: ${cl?.fullName||''}`,120,65);
                     doc.autoTable({ startY:80, head:[['Description','Amount (PKR)']], body:[['Total Fees',CURRENCY.format(c?.totalFees||0)],['This Payment',CURRENCY.format(b.amount)],['Total Paid',CURRENCY.format(paid)],['Balance Due',CURRENCY.format(due)]], theme:'grid', headStyles:{fillColor:[26,35,126]} });
                     doc.save(`Invoice_${b.invoiceNumber}.pdf`);
                     this.ui.toast('Invoice downloaded', 'success');
-                } catch(e) { this.ui.toast('PDF failed: '+e.message, 'error'); }
+                } catch(e) { this.ui.toast('PDF generation failed', 'error'); }
             }
             shareViaWhatsApp(billingId) {
                 const b = state.getState('billings').find(x=>x.id===billingId);
                 if(!b) return;
                 const c = state.getState('cases').find(x=>x.id===b.caseId);
-                const msg = `*Payment Receipt*\nInvoice: ${b.invoiceNumber}\nAmount: ${CURRENCY.format(b.amount)}\nCase: ${c?.caseNumber}\nThank you!`;
+                const msg = `*Payment Receipt*\nInvoice: ${b.invoiceNumber}\nAmount: ${CURRENCY.format(b.amount)}\nCase: ${c?.caseNumber||''}\nThank you!`;
                 window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
             }
-            async deleteBilling(id) { if(!confirm('Delete?')) return; await fb.delete('billings', id); await this.loadData(); this.ui.toast('Deleted', 'success'); }
+            async deleteBilling(id) { if(!confirm('Delete payment record?')) return; await fb.delete('billings', id); await this.loadData(); this.ui.toast('Payment record deleted', 'success'); }
             addProceeding(caseId) {
                 const c = state.getState('cases').find(x=>x.id===caseId);
                 this.ui.openModal(`
@@ -645,18 +691,26 @@
                 const nextDate = document.getElementById('nextDate').value;
                 if(!nextDate) return this.ui.toast('Next date required', 'error');
                 const c = state.getState('cases').find(x=>x.id===caseId);
-                const data = { caseId, caseNumber: c.caseNumber, clientName: c.clientName, courtCategory: c.courtCategory, proceedingDate: document.getElementById('proceedingDate').value, proceedingType: document.getElementById('proceedingType').value, description: document.getElementById('proceedingDesc').value, nextDate, outcome: document.getElementById('outcome').value, notified: false };
+                const data = { caseId, caseNumber: c?.caseNumber, clientName: c?.clientName, courtCategory: c?.courtCategory, proceedingDate: document.getElementById('proceedingDate').value, proceedingType: document.getElementById('proceedingType').value, description: document.getElementById('proceedingDesc').value, nextDate, outcome: document.getElementById('outcome').value, notified: false };
                 await fb.create('proceedings', data);
                 await fb.update('cases', caseId, { nextDate });
                 this.ui.toast('Proceeding saved', 'success');
                 await this.loadData();
                 this.ui.closeModal();
             }
-            sendAllNotifications() { this.ui.toast('Notifications sent', 'info'); }
+            sendAllNotifications() { 
+                const upcoming = state.computed.upcomingProceedings();
+                if(upcoming.length === 0) { this.ui.toast('No upcoming proceedings', 'info'); return; }
+                this.ui.toast(`${upcoming.length} proceedings scheduled for tomorrow`, 'info', 'Notifications Sent');
+            }
         }
 
         let app;
-        document.addEventListener('DOMContentLoaded', async () => { app = new LegalCaseManager(); await app.initialize(); window.app = app; });
+        document.addEventListener('DOMContentLoaded', async () => { 
+            app = new LegalCaseManager(); 
+            await app.initialize(); 
+            window.app = app; 
+        });
     </script>
 </body>
 </html>
