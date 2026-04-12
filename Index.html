@@ -1,0 +1,2584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#1a237e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Professional Legal Record Management System - Mian Shamas Abbas, High Court Advocate">
+    
+    <title>Legal Case Manager Pro - Mian Shamas Abbas</title>
+    
+    <!-- PWA Manifest (Inline) -->
+    <link rel="manifest" href="data:application/manifest+json,{
+        %22name%22:%22Legal%20Case%20Manager%20Pro%22,
+        %22short_name%22:%22LCM%20Pro%22,
+        %22description%22:%22Professional%20Legal%20Record%20Management%20System%22,
+        %22theme_color%22:%22%231a237e%22,
+        %22background_color%22:%22%23f5f7fa%22,
+        %22display%22:%22standalone%22,
+        %22orientation%22:%22portrait%22,
+        %22start_url%22:%22/%22,
+        %22icons%22:[
+            {%22src%22:%22data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2220%22%20fill%3D%22%231a237e%22%2F%3E%3Ctext%20x%3D%2250%22%20y%3D%2265%22%20font-size%3D%2250%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-family%3D%22Arial%22%3E⚖️%3C%2Ftext%3E%3C%2Fsvg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image%2Fsvg%2Bxml%22,%22purpose%22:%22any%20maskable%22}
+        ]
+    }">
+    
+    <!-- Favicon (Inline SVG) -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2220%22%20fill%3D%22%231a237e%22%2F%3E%3Ctext%20x%3D%2250%22%20y%3D%2265%22%20font-size%3D%2250%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-family%3D%22Arial%22%3E⚖️%3C%2Ftext%3E%3C%2Fsvg%3E" type="image/svg+xml">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        /* ============================================
+           COMPLETE CSS - PROFESSIONAL LEGAL THEME
+           ============================================ */
+
+        :root {
+            /* Primary Colors - Legal Professional Theme */
+            --primary-color: #1a237e;
+            --primary-light: #534bae;
+            --primary-dark: #000051;
+            
+            /* Secondary Colors - Gold/Amber for prestige */
+            --secondary-color: #ff6f00;
+            --secondary-light: #ffa040;
+            --secondary-dark: #c43e00;
+            
+            /* Neutral Colors */
+            --background: #f5f7fa;
+            --surface: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #607d8b;
+            --border-color: #e0e0e0;
+            
+            /* Status Colors */
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            --info: #2196f3;
+            
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 40px rgba(0,0,0,0.15);
+            
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 20px;
+            
+            /* Transitions */
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            --transition-slow: 350ms ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active { display: flex; }
+
+        .loading-spinner {
+            background: var(--surface);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--spacing-md);
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            transition: transform var(--transition-normal);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .sidebar.collapsed { width: 80px; }
+
+        .sidebar-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+        }
+
+        .advocate-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .advocate-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--secondary-color);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .advocate-details h3 {
+            font-size: 14px;
+            margin-bottom: var(--spacing-xs);
+            font-weight: 600;
+        }
+
+        .advocate-details .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            display: inline-block;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            background: var(--surface);
+            border: none;
+            border-radius: 50%;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: var(--spacing-md);
+            list-style: none;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-xs);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: rgba(255,255,255,0.8);
+            position: relative;
+        }
+
+        .nav-item i { width: 24px; font-size: 20px; }
+        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+        
+        .nav-item.active { 
+            background: var(--secondary-color); 
+            color: white; 
+            box-shadow: var(--shadow-md); 
+        }
+
+        .notification-badge {
+            background: var(--error);
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
+        .sidebar-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            font-size: 13px;
+        }
+
+        .connection-status i { font-size: 10px; color: var(--success); }
+        .connection-status.offline i { color: var(--error); }
+
+        .logout-btn {
+            width: 100%;
+            padding: var(--spacing-md);
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: var(--radius-md);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--background);
+        }
+
+        .top-header {
+            background: var(--surface);
+            padding: var(--spacing-md) var(--spacing-xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left { display: flex; align-items: center; gap: var(--spacing-md); }
+        .mobile-menu-toggle { display: none; background: none; border: none; font-size: 24px; cursor: pointer; }
+        #pageTitle { font-size: 22px; font-weight: 600; }
+
+        .header-right { display: flex; align-items: center; gap: var(--spacing-lg); }
+
+        .search-container {
+            position: relative;
+            min-width: 300px;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: var(--spacing-md);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) 40px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            font-size: 14px;
+            background: var(--background);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(26,35,126,0.1);
+            background: var(--surface);
+        }
+
+        .quick-actions { display: flex; align-items: center; gap: var(--spacing-sm); }
+
+        .btn {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--background);
+            border-color: var(--primary-color);
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .btn-icon:hover {
+            background: var(--background);
+            color: var(--primary-color);
+        }
+
+        .btn-icon .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--error);
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 10px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: var(--spacing-xl);
+            overflow-y: auto;
+        }
+
+        .view {
+            animation: fadeIn var(--transition-normal);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .stat-card {
+            background: var(--surface);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-normal);
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        /* Tables */
+        .data-table-container {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .table-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .table-title { font-size: 18px; font-weight: 600; }
+        .table-actions { display: flex; gap: var(--spacing-sm); }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: var(--background);
+            padding: var(--spacing-md) var(--spacing-lg);
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .data-table td {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table tbody tr:hover { background: var(--background); }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.active { background: rgba(76,175,80,0.1); color: var(--success); }
+        .status-badge.pending { background: rgba(255,152,0,0.1); color: var(--warning); }
+        .status-badge.disposed { background: rgba(33,150,243,0.1); color: var(--info); }
+
+        .action-buttons { display: flex; gap: var(--spacing-xs); }
+
+        .btn-table {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .btn-table:hover { background: var(--primary-color); color: white; }
+        .btn-table.delete:hover { background: var(--error); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-container {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp var(--transition-normal);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: var(--spacing-xl);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title { font-size: 20px; font-weight: 600; }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .modal-close:hover { background: var(--error); color: white; }
+
+        .modal-body { padding: var(--spacing-xl); }
+
+        .modal-footer {
+            padding: var(--spacing-xl);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-md);
+        }
+
+        /* Forms */
+        .form-group { margin-bottom: var(--spacing-lg); }
+        .form-label { display: block; margin-bottom: var(--spacing-sm); font-weight: 500; }
+        .form-label .required { color: var(--error); margin-left: var(--spacing-xs); }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            background: var(--surface);
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(26,35,126,0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: var(--spacing-xl);
+            right: var(--spacing-xl);
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .toast {
+            background: var(--surface);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            min-width: 300px;
+            animation: slideInRight var(--transition-normal);
+            border-left: 4px solid;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--error); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast.info { border-left-color: var(--info); }
+
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 600; margin-bottom: var(--spacing-xs); }
+        .toast-message { font-size: 14px; color: var(--text-secondary); }
+
+        /* Filters */
+        .filters-section {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--surface);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 1000;
+                transform: translateX(-100%);
+            }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .mobile-menu-toggle { display: block; }
+            .search-container { display: none; }
+            .quick-actions .btn span { display: none; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .content-area { padding: var(--spacing-md); }
+            .top-header { padding: var(--spacing-md); }
+        }
+
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: var(--spacing-xs); }
+        .mt-2 { margin-top: var(--spacing-sm); }
+        .mt-3 { margin-top: var(--spacing-md); }
+        .mt-4 { margin-top: var(--spacing-lg); }
+        .mb-3 { margin-bottom: var(--spacing-md); }
+        .w-100 { width: 100%; }
+        
+        .add-client-link {
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: var(--spacing-xs);
+            display: inline-block;
+        }
+        
+        .add-client-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading Legal Case Manager...</p>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="advocate-info">
+                    <div class="advocate-avatar">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <div class="advocate-details">
+                        <h3>Mian Shamas Abbas</h3>
+                        <span class="badge">High Court Advocate</span>
+                    </div>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item active" data-view="dashboard">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-view="cases">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Cases</span>
+                </li>
+                <li class="nav-item" data-view="clients">
+                    <i class="fas fa-users"></i>
+                    <span>Clients</span>
+                </li>
+                <li class="nav-item" data-view="billing">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Billing</span>
+                </li>
+                <li class="nav-item" data-view="proceedings">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Proceedings</span>
+                </li>
+                <li class="nav-item" data-view="notifications">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                    <span class="notification-badge" id="notificationBadge">0</span>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="connection-status" id="connectionStatus">
+                    <i class="fas fa-circle"></i>
+                    <span>Online</span>
+                </div>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 id="pageTitle">Dashboard</h2>
+                </div>
+
+                <div class="header-right">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="globalSearch" placeholder="Search by case number or client name..." class="search-input">
+                    </div>
+
+                    <div class="quick-actions">
+                        <button class="btn btn-primary" id="quickAddCase">
+                            <i class="fas fa-plus"></i>
+                            <span>New Case</span>
+                        </button>
+                        <button class="btn-icon" id="refreshData">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="btn-icon notification-icon" id="notificationBell">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge" id="headerNotificationBadge">0</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area" id="contentArea">
+                <!-- Dashboard View -->
+                <div class="view dashboard-view" id="dashboardView"></div>
+                <!-- Cases View -->
+                <div class="view cases-view" id="casesView" style="display: none;"></div>
+                <!-- Clients View -->
+                <div class="view clients-view" id="clientsView" style="display: none;"></div>
+                <!-- Billing View -->
+                <div class="view billing-view" id="billingView" style="display: none;"></div>
+                <!-- Proceedings View -->
+                <div class="view proceedings-view" id="proceedingsView" style="display: none;"></div>
+                <!-- Notifications View -->
+                <div class="view notifications-view" id="notificationsView" style="display: none;"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Container -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-container" id="modalContainer"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        /* ============================================
+           COMPLETE JAVASCRIPT - FIREBASE INTEGRATED
+           ============================================ */
+
+        // FIREBASE CONFIGURATION - YOUR PROVIDED CREDENTIALS
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyB3F60BhQd1W2AzRfepKlULcJTEPlFvVGw",
+            authDomain: "legal-case-management-pro.firebaseapp.com",
+            projectId: "legal-case-management-pro",
+            storageBucket: "legal-case-management-pro.firebasestorage.app",
+            messagingSenderId: "1018024873539",
+            appId: "1:1018024873539:web:f3661732b4ded21c90cef6"
+        };
+
+        // APPLICATION CONFIGURATION
+        const APP_CONFIG = {
+            appName: "Legal Case Manager Pro",
+            version: "1.0.0",
+            advocate: {
+                name: "MIAN SHAMAS ABBAS",
+                title: "Most Experienced Advocate High Court",
+                mobile: "xxxxd",
+                whatsapp: "xxxx"
+            },
+            courts: [
+                "Supreme Court", 
+                "High Court", 
+                "District & Sessions Court",
+                "Civil Court", 
+                "Family Court", 
+                "Consumer Court",
+                "Labor Court", 
+                "Banking Court", 
+                "Anti-Terrorism Court",
+                "Special Court",
+                "National Company Law Tribunal"
+            ],
+            caseStatuses: ["Active", "Pending", "Disposed", "Adjourned", "Reserved", "Settled"],
+            proceedingTypes: ["Hearing", "Evidence", "Arguments", "Cross Examination", "Filing", "Miscellaneous"]
+        };
+
+        // State Manager Class
+        class StateManager {
+            constructor() {
+                this.state = {
+                    isOnline: navigator.onLine,
+                    isLoading: false,
+                    cases: [],
+                    clients: [],
+                    billings: [],
+                    proceedings: [],
+                    notifications: [],
+                    filters: { searchTerm: '', courtFilter: 'all', statusFilter: 'all' },
+                    activeView: 'dashboard',
+                    selectedCase: null
+                };
+                this.subscribers = new Map();
+                this.loadFromStorage();
+            }
+
+            setState(updates) {
+                const changes = {};
+                for (const [key, value] of Object.entries(updates)) {
+                    if (JSON.stringify(this.state[key]) !== JSON.stringify(value)) {
+                        changes[key] = { old: this.state[key], new: value };
+                        this.state[key] = value;
+                    }
+                }
+                if (Object.keys(changes).length > 0) {
+                    this.notifySubscribers(changes);
+                    this.saveToStorage();
+                }
+            }
+
+            getState(key = null) {
+                return key ? this.state[key] : { ...this.state };
+            }
+
+            subscribe(key, callback) {
+                if (!this.subscribers.has(key)) {
+                    this.subscribers.set(key, new Set());
+                }
+                this.subscribers.get(key).add(callback);
+                return () => this.subscribers.get(key)?.delete(callback);
+            }
+
+            notifySubscribers(changes) {
+                for (const [key, change] of Object.entries(changes)) {
+                    const subs = this.subscribers.get(key);
+                    if (subs) {
+                        subs.forEach(cb => cb(change.new, change.old));
+                    }
+                }
+                const wildcard = this.subscribers.get('*');
+                if (wildcard) {
+                    wildcard.forEach(cb => cb(this.state, changes));
+                }
+            }
+
+            saveToStorage() {
+                try {
+                    localStorage.setItem('lcm_state', JSON.stringify({
+                        filters: this.state.filters,
+                        activeView: this.state.activeView
+                    }));
+                } catch (e) {}
+            }
+
+            loadFromStorage() {
+                try {
+                    const saved = localStorage.getItem('lcm_state');
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        Object.assign(this.state, parsed);
+                    }
+                } catch (e) {}
+            }
+
+            get computed() {
+                return {
+                    filteredCases: () => {
+                        const { cases, filters } = this.state;
+                        return cases.filter(c => {
+                            if (filters.searchTerm) {
+                                const term = filters.searchTerm.toLowerCase();
+                                if (!(c.caseNumber?.toLowerCase().includes(term) ||
+                                      c.clientName?.toLowerCase().includes(term) ||
+                                      c.caseTitle?.toLowerCase().includes(term))) {
+                                    return false;
+                                }
+                            }
+                            if (filters.courtFilter !== 'all' && c.courtCategory !== filters.courtFilter) {
+                                return false;
+                            }
+                            if (filters.statusFilter !== 'all' && c.status !== filters.statusFilter) {
+                                return false;
+                            }
+                            return true;
+                        });
+                    },
+                    upcomingProceedings: () => {
+                        const tomorrow = new Date();
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                        return this.state.proceedings.filter(p => p.nextDate === tomorrowStr && !p.notified);
+                    },
+                    statistics: () => {
+                        const { cases, billings } = this.state;
+                        const totalFees = cases.reduce((s, c) => s + (c.totalFees || 0), 0);
+                        const totalPaid = billings.reduce((s, b) => s + (b.amount || 0), 0);
+                        return {
+                            totalCases: cases.length,
+                            activeCases: cases.filter(c => c.status === 'Active').length,
+                            disposedCases: cases.filter(c => c.status === 'Disposed').length,
+                            totalFees,
+                            totalPaid,
+                            totalDue: totalFees - totalPaid
+                        };
+                    }
+                };
+            }
+        }
+
+        const stateManager = new StateManager();
+
+        // Firebase Service Class
+        class FirebaseService {
+            constructor() {
+                this.db = null;
+                this.isInitialized = false;
+                this.connectionStatus = true;
+                this.offlineQueue = [];
+                this.listeners = [];
+            }
+
+            async initialize() {
+                try {
+                    if (!firebase.apps.length) {
+                        firebase.initializeApp(FIREBASE_CONFIG);
+                    }
+                    this.db = firebase.firestore();
+                    
+                    try {
+                        await this.db.enablePersistence();
+                        console.log('✅ Offline persistence enabled');
+                    } catch (err) {
+                        if (err.code === 'failed-precondition') {
+                            console.warn('⚠️ Multiple tabs open - offline mode limited');
+                        } else if (err.code === 'unimplemented') {
+                            console.warn('⚠️ Browser does not support offline persistence');
+                        }
+                    }
+
+                    this.setupConnectionMonitoring();
+                    this.isInitialized = true;
+                    console.log('✅ Firebase initialized successfully');
+                    return true;
+                } catch (error) {
+                    console.error('❌ Firebase initialization error:', error);
+                    return false;
+                }
+            }
+
+            setupConnectionMonitoring() {
+                this.db.collection('.info/connected').on('value', (snap) => {
+                    this.connectionStatus = snap.val() === true;
+                    stateManager.setState({ isOnline: this.connectionStatus });
+                    
+                    const statusEl = document.getElementById('connectionStatus');
+                    if (statusEl) {
+                        const icon = statusEl.querySelector('i');
+                        const text = statusEl.querySelector('span');
+                        if (this.connectionStatus) {
+                            statusEl.classList.remove('offline');
+                            icon.style.color = 'var(--success)';
+                            text.textContent = 'Online';
+                        } else {
+                            statusEl.classList.add('offline');
+                            icon.style.color = 'var(--error)';
+                            text.textContent = 'Offline';
+                        }
+                    }
+                    
+                    if (this.connectionStatus && this.offlineQueue.length > 0) {
+                        this.processOfflineQueue();
+                    }
+                });
+            }
+
+            async create(collection, data) {
+                try {
+                    if (!this.connectionStatus) {
+                        const offlineId = `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                        this.offlineQueue.push({ collection, action: 'create', data, id: offlineId });
+                        return { id: offlineId, offline: true };
+                    }
+                    const docRef = await this.db.collection(collection).add({
+                        ...data,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    return { id: docRef.id, offline: false };
+                } catch (error) {
+                    console.error('Create error:', error);
+                    throw error;
+                }
+            }
+
+            async read(collection, constraints = []) {
+                try {
+                    let query = this.db.collection(collection);
+                    constraints.forEach(c => {
+                        if (c.type === 'where') {
+                            query = query.where(c.field, c.operator, c.value);
+                        } else if (c.type === 'orderBy') {
+                            query = query.orderBy(c.field, c.direction || 'asc');
+                        } else if (c.type === 'limit') {
+                            query = query.limit(c.value);
+                        }
+                    });
+                    const snapshot = await query.get();
+                    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                } catch (error) {
+                    console.error('Read error:', error);
+                    return [];
+                }
+            }
+
+            async update(collection, id, data) {
+                try {
+                    if (!this.connectionStatus) {
+                        this.offlineQueue.push({ collection, action: 'update', id, data });
+                        return { success: true, offline: true };
+                    }
+                    await this.db.collection(collection).doc(id).update({
+                        ...data,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    return { success: true, offline: false };
+                } catch (error) {
+                    console.error('Update error:', error);
+                    throw error;
+                }
+            }
+
+            async delete(collection, id) {
+                try {
+                    if (!this.connectionStatus) {
+                        this.offlineQueue.push({ collection, action: 'delete', id });
+                        return { success: true, offline: true };
+                    }
+                    await this.db.collection(collection).doc(id).delete();
+                    return { success: true, offline: false };
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    throw error;
+                }
+            }
+
+            listenToCollection(collection, callback, constraints = []) {
+                let query = this.db.collection(collection);
+                constraints.forEach(c => {
+                    if (c.type === 'where') {
+                        query = query.where(c.field, c.operator, c.value);
+                    }
+                });
+                
+                const unsubscribe = query.onSnapshot(snapshot => {
+                    const docs = [];
+                    snapshot.docChanges().forEach(change => {
+                        docs.push({ 
+                            id: change.doc.id, 
+                            ...change.doc.data(), 
+                            changeType: change.type 
+                        });
+                    });
+                    callback(docs);
+                }, error => {
+                    console.error(`Listen error for ${collection}:`, error);
+                });
+                
+                this.listeners.push(unsubscribe);
+                return unsubscribe;
+            }
+
+            async processOfflineQueue() {
+                const queue = [...this.offlineQueue];
+                this.offlineQueue = [];
+                for (const item of queue) {
+                    try {
+                        if (item.action === 'create') {
+                            await this.create(item.collection, item.data);
+                        } else if (item.action === 'update') {
+                            await this.update(item.collection, item.id, item.data);
+                        } else if (item.action === 'delete') {
+                            await this.delete(item.collection, item.id);
+                        }
+                    } catch (e) {
+                        console.error('Failed to sync offline item:', e);
+                    }
+                }
+            }
+
+            cleanup() {
+                this.listeners.forEach(unsub => unsub());
+                this.listeners = [];
+            }
+        }
+
+        const firebaseService = new FirebaseService();
+
+        // UI Controller Class
+        class UIController {
+            constructor() {
+                this.modalOverlay = document.getElementById('modalOverlay');
+                this.modalContainer = document.getElementById('modalContainer');
+                this.toastContainer = document.getElementById('toastContainer');
+                this.loadingOverlay = document.getElementById('loadingOverlay');
+            }
+
+            showNotification(message, type = 'info', title = '') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                const icons = { 
+                    success: 'check-circle', 
+                    error: 'exclamation-circle', 
+                    warning: 'exclamation-triangle', 
+                    info: 'info-circle' 
+                };
+                
+                toast.innerHTML = `
+                    <i class="fas fa-${icons[type] || icons.info}"></i>
+                    <div class="toast-content">
+                        ${title ? `<div class="toast-title">${title}</div>` : ''}
+                        <div class="toast-message">${message}</div>
+                    </div>
+                    <button class="toast-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                this.toastContainer.appendChild(toast);
+                setTimeout(() => toast.remove(), 5000);
+            }
+
+            showLoading(show) {
+                this.loadingOverlay.classList.toggle('active', show);
+            }
+
+            openModal(content) {
+                this.modalContainer.innerHTML = content;
+                this.modalOverlay.classList.add('active');
+            }
+
+            closeModal() {
+                this.modalOverlay.classList.remove('active');
+                app.currentModalData = null;
+            }
+
+            renderDashboard() {
+                const stats = stateManager.computed.statistics();
+                const upcoming = stateManager.computed.upcomingProceedings();
+                const recentCases = stateManager.getState('cases').slice(0, 5);
+                
+                document.getElementById('dashboardView').innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon"><i class="fas fa-gavel"></i></div>
+                            </div>
+                            <div class="stat-value">${stats.totalCases}</div>
+                            <div class="stat-label">Total Cases</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, var(--success), #66bb6a);">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value">${stats.activeCases}</div>
+                            <div class="stat-label">Active Cases</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, var(--info), #64b5f6);">
+                                    <i class="fas fa-check-double"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value">${stats.disposedCases}</div>
+                            <div class="stat-label">Disposed Cases</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, var(--warning), #ffb74d);">
+                                    <i class="fas fa-rupee-sign"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value">₹${stats.totalFees.toLocaleString()}</div>
+                            <div class="stat-label">Total Fees</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, #4caf50, #81c784);">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value">₹${stats.totalPaid.toLocaleString()}</div>
+                            <div class="stat-label">Amount Received</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon" style="background: linear-gradient(135deg, var(--error), #ef5350);">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value">₹${stats.totalDue.toLocaleString()}</div>
+                            <div class="stat-label">Amount Due</div>
+                        </div>
+                    </div>
+                    
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <span class="table-title"><i class="fas fa-clock"></i> Recent Cases</span>
+                            <button class="btn btn-secondary" onclick="app.showCaseModal()">
+                                <i class="fas fa-plus"></i> New Case
+                            </button>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Case No.</th>
+                                    <th>Client</th>
+                                    <th>Court</th>
+                                    <th>Filing Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${recentCases.map(c => `
+                                    <tr>
+                                        <td><strong>${c.caseNumber || 'N/A'}</strong></td>
+                                        <td>${c.clientName || 'N/A'}</td>
+                                        <td>${c.courtCategory || 'N/A'}</td>
+                                        <td>${c.filingDate || 'N/A'}</td>
+                                        <td><span class="status-badge ${c.status?.toLowerCase() || 'pending'}">${c.status || 'Pending'}</span></td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="btn-table" onclick="app.editCase('${c.id}')"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-table" onclick="app.showBillingModal('${c.id}')"><i class="fas fa-rupee-sign"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('') || '<tr><td colspan="6" class="text-center">No cases yet. Click "New Case" to add.</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <span class="table-title"><i class="fas fa-calendar-day"></i> Tomorrow's Proceedings (${upcoming.length})</span>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Case No.</th>
+                                    <th>Client</th>
+                                    <th>Court</th>
+                                    <th>Next Date</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${upcoming.map(p => `
+                                    <tr>
+                                        <td><strong>${p.caseNumber || 'N/A'}</strong></td>
+                                        <td>${p.clientName || 'N/A'}</td>
+                                        <td>${p.courtCategory || 'N/A'}</td>
+                                        <td><span style="color: var(--primary-color); font-weight: 600;">${p.nextDate || 'N/A'}</span></td>
+                                        <td>${p.proceedingType || 'Hearing'}</td>
+                                    </tr>
+                                `).join('') || '<tr><td colspan="5" class="text-center">No proceedings scheduled for tomorrow</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            renderCases() {
+                const filtered = stateManager.computed.filteredCases();
+                const courts = APP_CONFIG.courts;
+                const statuses = APP_CONFIG.caseStatuses;
+                const filters = stateManager.getState('filters');
+                
+                document.getElementById('casesView').innerHTML = `
+                    <div class="filters-section">
+                        <select class="filter-select" id="courtFilter">
+                            <option value="all">All Courts</option>
+                            ${courts.map(c => `<option value="${c}" ${filters.courtFilter === c ? 'selected' : ''}>${c}</option>`).join('')}
+                        </select>
+                        <select class="filter-select" id="statusFilter">
+                            <option value="all">All Status</option>
+                            ${statuses.map(s => `<option value="${s}" ${filters.statusFilter === s ? 'selected' : ''}>${s}</option>`).join('')}
+                        </select>
+                        <button class="btn btn-primary" onclick="app.showCaseModal()">
+                            <i class="fas fa-plus"></i> New Case
+                        </button>
+                        <span style="margin-left: auto; color: var(--text-secondary);">
+                            Total: ${filtered.length} cases
+                        </span>
+                    </div>
+                    
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Case No.</th>
+                                    <th>Title</th>
+                                    <th>Client</th>
+                                    <th>Court</th>
+                                    <th>Filing Date</th>
+                                    <th>Total Fees</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${filtered.map(c => `
+                                    <tr>
+                                        <td><strong>${c.caseNumber || 'N/A'}</strong></td>
+                                        <td>${c.caseTitle || 'N/A'}</td>
+                                        <td>${c.clientName || 'N/A'}</td>
+                                        <td>${c.courtCategory || 'N/A'}</td>
+                                        <td>${c.filingDate || 'N/A'}</td>
+                                        <td>₹${(c.totalFees || 0).toLocaleString()}</td>
+                                        <td><span class="status-badge ${c.status?.toLowerCase() || 'pending'}">${c.status || 'Pending'}</span></td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="btn-table" onclick="app.editCase('${c.id}')"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-table delete" onclick="app.deleteCase('${c.id}')"><i class="fas fa-trash"></i></button>
+                                                <button class="btn-table" onclick="app.showBillingModal('${c.id}')"><i class="fas fa-rupee-sign"></i></button>
+                                                <button class="btn-table" onclick="app.addProceeding('${c.id}')"><i class="fas fa-calendar-plus"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('') || '<tr><td colspan="8" class="text-center">No cases found</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                document.getElementById('courtFilter')?.addEventListener('change', (e) => {
+                    stateManager.setState({ filters: { ...filters, courtFilter: e.target.value }});
+                    this.renderCases();
+                });
+                
+                document.getElementById('statusFilter')?.addEventListener('change', (e) => {
+                    stateManager.setState({ filters: { ...filters, statusFilter: e.target.value }});
+                    this.renderCases();
+                });
+            }
+
+            renderClients() {
+                const clients = stateManager.getState('clients');
+                const cases = stateManager.getState('cases');
+                
+                document.getElementById('clientsView').innerHTML = `
+                    <div class="filters-section">
+                        <button class="btn btn-primary" onclick="app.showClientModal()">
+                            <i class="fas fa-user-plus"></i> New Client
+                        </button>
+                        <span style="margin-left: auto; color: var(--text-secondary);">
+                            Total: ${clients.length} clients
+                        </span>
+                    </div>
+                    
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Mobile</th>
+                                    <th>Email</th>
+                                    <th>Address</th>
+                                    <th>Cases</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${clients.map(c => {
+                                    const clientCases = cases.filter(cs => cs.clientId === c.id).length;
+                                    return `
+                                        <tr>
+                                            <td><strong>${c.fullName || 'N/A'}</strong></td>
+                                            <td>${c.mobile || 'N/A'}</td>
+                                            <td>${c.email || 'N/A'}</td>
+                                            <td>${c.address || 'N/A'}</td>
+                                            <td>${clientCases}</td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <button class="btn-table" onclick="app.editClient('${c.id}')"><i class="fas fa-edit"></i></button>
+                                                    <button class="btn-table delete" onclick="app.deleteClient('${c.id}')"><i class="fas fa-trash"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('') || '<tr><td colspan="6" class="text-center">No clients found. Click "New Client" to add.</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            renderBilling() {
+                const billings = stateManager.getState('billings');
+                const cases = stateManager.getState('cases');
+                const stats = stateManager.computed.statistics();
+                
+                document.getElementById('billingView').innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">₹${stats.totalFees.toLocaleString()}</div>
+                            <div class="stat-label">Total Fees</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">₹${stats.totalPaid.toLocaleString()}</div>
+                            <div class="stat-label">Total Received</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">₹${stats.totalDue.toLocaleString()}</div>
+                            <div class="stat-label">Total Due</div>
+                        </div>
+                    </div>
+                    
+                    <div class="filters-section">
+                        <button class="btn btn-primary" onclick="app.showBillingModal()">
+                            <i class="fas fa-plus"></i> Record Payment
+                        </button>
+                    </div>
+                    
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th>
+                                    <th>Case</th>
+                                    <th>Client</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${billings.map(b => {
+                                    const caseData = cases.find(c => c.id === b.caseId);
+                                    return `
+                                        <tr>
+                                            <td><strong>${b.invoiceNumber || 'N/A'}</strong></td>
+                                            <td>${caseData?.caseNumber || 'N/A'}</td>
+                                            <td>${caseData?.clientName || 'N/A'}</td>
+                                            <td style="color: var(--success); font-weight: 600;">₹${(b.amount || 0).toLocaleString()}</td>
+                                            <td>${b.paymentMethod || 'Cash'}</td>
+                                            <td>${b.paymentDate || 'N/A'}</td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <button class="btn-table" onclick="app.generateInvoice('${b.id}')"><i class="fas fa-file-pdf"></i></button>
+                                                    <button class="btn-table" onclick="app.shareViaWhatsApp('${b.id}')"><i class="fab fa-whatsapp"></i></button>
+                                                    <button class="btn-table delete" onclick="app.deleteBilling('${b.id}')"><i class="fas fa-trash"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('') || '<tr><td colspan="7" class="text-center">No payments recorded</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            renderProceedings() {
+                const proceedings = stateManager.getState('proceedings');
+                
+                document.getElementById('proceedingsView').innerHTML = `
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <span class="table-title"><i class="fas fa-history"></i> All Proceedings</span>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Case No.</th>
+                                    <th>Client</th>
+                                    <th>Court</th>
+                                    <th>Proceeding Date</th>
+                                    <th>Type</th>
+                                    <th>Next Date</th>
+                                    <th>Outcome</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${proceedings.map(p => `
+                                    <tr>
+                                        <td><strong>${p.caseNumber || 'N/A'}</strong></td>
+                                        <td>${p.clientName || 'N/A'}</td>
+                                        <td>${p.courtCategory || 'N/A'}</td>
+                                        <td>${p.proceedingDate || 'N/A'}</td>
+                                        <td>${p.proceedingType || 'Hearing'}</td>
+                                        <td><span style="color: var(--primary-color); font-weight: 600;">${p.nextDate || 'N/A'}</span></td>
+                                        <td>${p.outcome || 'Pending'}</td>
+                                    </tr>
+                                `).join('') || '<tr><td colspan="7" class="text-center">No proceedings recorded</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            renderNotifications() {
+                const upcoming = stateManager.computed.upcomingProceedings();
+                
+                document.getElementById('notificationsView').innerHTML = `
+                    <div class="data-table-container">
+                        <div class="table-header">
+                            <span class="table-title"><i class="fas fa-bell"></i> Tomorrow's Proceedings (${upcoming.length})</span>
+                            ${upcoming.length > 0 ? `<button class="btn btn-secondary" onclick="app.sendAllNotifications()"><i class="fas fa-bell"></i> Notify All</button>` : ''}
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Case No.</th>
+                                    <th>Client</th>
+                                    <th>Court</th>
+                                    <th>Next Date</th>
+                                    <th>Type</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${upcoming.map(p => `
+                                    <tr>
+                                        <td><strong>${p.caseNumber || 'N/A'}</strong></td>
+                                        <td>${p.clientName || 'N/A'}</td>
+                                        <td>${p.courtCategory || 'N/A'}</td>
+                                        <td><span style="color: var(--primary-color); font-weight: 600;">${p.nextDate || 'N/A'}</span></td>
+                                        <td>${p.proceedingType || 'Hearing'}</td>
+                                        <td>
+                                            <button class="btn-table" onclick="app.sendNotification('${p.id}')">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('') || '<tr><td colspan="6" class="text-center">No upcoming proceedings</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="data-table-container mt-3">
+                        <div class="table-header">
+                            <span class="table-title"><i class="fas fa-clock"></i> Notification Settings</span>
+                        </div>
+                        <div style="padding: var(--spacing-lg);">
+                            <p><i class="fas fa-check-circle" style="color: var(--success);"></i> Auto-check runs every hour</p>
+                            <p><i class="fas fa-check-circle" style="color: var(--success);"></i> Notifications appear 1 day before proceeding</p>
+                            <button class="btn btn-secondary mt-2" onclick="app.requestNotificationPermission()">
+                                <i class="fas fa-bell"></i> Enable Browser Notifications
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            updateCasesView() {
+                const activeView = stateManager.getState('activeView');
+                if (activeView === 'dashboard') {
+                    this.renderDashboard();
+                } else if (activeView === 'cases') {
+                    this.renderCases();
+                }
+                this.updateNotificationBadges();
+            }
+
+            updateClientsView() {
+                if (stateManager.getState('activeView') === 'clients') {
+                    this.renderClients();
+                }
+            }
+
+            updateNotificationBadges() {
+                const upcoming = stateManager.computed.upcomingProceedings();
+                const count = upcoming.length;
+                
+                const badge = document.getElementById('notificationBadge');
+                const headerBadge = document.getElementById('headerNotificationBadge');
+                
+                if (badge) {
+                    badge.textContent = count;
+                    badge.style.display = count > 0 ? 'block' : 'none';
+                }
+                if (headerBadge) {
+                    headerBadge.textContent = count;
+                    headerBadge.style.display = count > 0 ? 'block' : 'none';
+                }
+            }
+        }
+
+        // Main Application Class
+        class LegalCaseManager {
+            constructor() {
+                this.ui = new UIController();
+                this.currentModalData = null;
+            }
+
+            async initialize() {
+                this.ui.showLoading(true);
+                
+                const fbInitialized = await firebaseService.initialize();
+                if (!fbInitialized) {
+                    this.ui.showNotification('Working in offline mode - data will sync when online', 'warning');
+                }
+
+                this.setupEventListeners();
+                this.setupStateSubscriptions();
+                
+                await this.loadData();
+                this.setupRealtimeListeners();
+                
+                this.navigateTo('dashboard');
+                this.checkTomorrowProceedings();
+                
+                // Check for notifications every hour
+                setInterval(() => this.checkTomorrowProceedings(), 3600000);
+                
+                this.ui.showLoading(false);
+                this.ui.showNotification(`Welcome to Legal Case Manager Pro`, 'success', 'System Ready');
+            }
+
+            setupEventListeners() {
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', () => this.navigateTo(item.dataset.view));
+                });
+
+                document.getElementById('mobileMenuToggle')?.addEventListener('click', () => {
+                    document.getElementById('sidebar').classList.toggle('mobile-open');
+                });
+
+                document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+                    document.getElementById('sidebar').classList.toggle('collapsed');
+                });
+
+                document.getElementById('globalSearch')?.addEventListener('input', (e) => {
+                    const filters = stateManager.getState('filters');
+                    stateManager.setState({ filters: { ...filters, searchTerm: e.target.value }});
+                    if (stateManager.getState('activeView') === 'cases') {
+                        this.ui.renderCases();
+                    }
+                });
+
+                document.getElementById('quickAddCase')?.addEventListener('click', () => this.showCaseModal());
+                
+                document.getElementById('refreshData')?.addEventListener('click', () => this.refreshData());
+                
+                document.getElementById('notificationBell')?.addEventListener('click', () => this.navigateTo('notifications'));
+                
+                document.getElementById('logoutBtn')?.addEventListener('click', () => {
+                    if (confirm('Clear all local data and reload?')) {
+                        localStorage.clear();
+                        location.reload();
+                    }
+                });
+
+                window.addEventListener('online', () => {
+                    stateManager.setState({ isOnline: true });
+                    this.ui.showNotification('Back online - syncing data', 'success');
+                });
+
+                window.addEventListener('offline', () => {
+                    stateManager.setState({ isOnline: false });
+                    this.ui.showNotification('Working offline - changes will sync when online', 'warning');
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') this.ui.closeModal();
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                        e.preventDefault();
+                        document.getElementById('globalSearch')?.focus();
+                    }
+                });
+            }
+
+            setupStateSubscriptions() {
+                stateManager.subscribe('cases', () => {
+                    this.ui.updateCasesView();
+                    this.ui.updateNotificationBadges();
+                });
+                stateManager.subscribe('clients', () => this.ui.updateClientsView());
+                stateManager.subscribe('filters', () => {
+                    if (stateManager.getState('activeView') === 'cases') {
+                        this.ui.renderCases();
+                    }
+                });
+            }
+
+            async loadData() {
+                try {
+                    const cases = await firebaseService.read('cases', [
+                        { type: 'orderBy', field: 'createdAt', direction: 'desc' }
+                    ]);
+                    const clients = await firebaseService.read('clients', [
+                        { type: 'orderBy', field: 'createdAt', direction: 'desc' }
+                    ]);
+                    const billings = await firebaseService.read('billings', [
+                        { type: 'orderBy', field: 'paymentDate', direction: 'desc' }
+                    ]);
+                    const proceedings = await firebaseService.read('proceedings', [
+                        { type: 'orderBy', field: 'nextDate', direction: 'asc' }
+                    ]);
+
+                    stateManager.setState({ cases, clients, billings, proceedings });
+                } catch (error) {
+                    console.error('Failed to load data:', error);
+                    this.ui.showNotification('Failed to load some data', 'warning');
+                }
+            }
+
+            setupRealtimeListeners() {
+                firebaseService.listenToCollection('cases', (changes) => {
+                    const current = stateManager.getState('cases');
+                    changes.forEach(change => {
+                        const idx = current.findIndex(c => c.id === change.id);
+                        if (change.changeType === 'removed' && idx !== -1) {
+                            current.splice(idx, 1);
+                        } else if (idx !== -1) {
+                            current[idx] = { ...current[idx], ...change };
+                        } else {
+                            current.push(change);
+                        }
+                    });
+                    stateManager.setState({ cases: [...current] });
+                });
+
+                firebaseService.listenToCollection('clients', (changes) => {
+                    const current = stateManager.getState('clients');
+                    changes.forEach(change => {
+                        const idx = current.findIndex(c => c.id === change.id);
+                        if (change.changeType === 'removed' && idx !== -1) {
+                            current.splice(idx, 1);
+                        } else if (idx !== -1) {
+                            current[idx] = { ...current[idx], ...change };
+                        } else {
+                            current.push(change);
+                        }
+                    });
+                    stateManager.setState({ clients: [...current] });
+                });
+            }
+
+            navigateTo(view) {
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.toggle('active', item.dataset.view === view);
+                });
+
+                const titles = { 
+                    dashboard: 'Dashboard', 
+                    cases: 'Case Management', 
+                    clients: 'Client Management', 
+                    billing: 'Billing & Invoices',
+                    proceedings: 'Proceedings History', 
+                    notifications: 'Notifications' 
+                };
+                document.getElementById('pageTitle').textContent = titles[view] || view;
+
+                document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+                document.getElementById(`${view}View`).style.display = 'block';
+
+                stateManager.setState({ activeView: view });
+
+                switch(view) {
+                    case 'dashboard': this.ui.renderDashboard(); break;
+                    case 'cases': this.ui.renderCases(); break;
+                    case 'clients': this.ui.renderClients(); break;
+                    case 'billing': this.ui.renderBilling(); break;
+                    case 'proceedings': this.ui.renderProceedings(); break;
+                    case 'notifications': this.ui.renderNotifications(); break;
+                }
+
+                document.getElementById('sidebar').classList.remove('mobile-open');
+            }
+
+            async refreshData() {
+                this.ui.showLoading(true);
+                await this.loadData();
+                this.ui.showNotification('Data refreshed successfully', 'success');
+                this.ui.showLoading(false);
+            }
+
+            checkTomorrowProceedings() {
+                const upcoming = stateManager.computed.upcomingProceedings();
+                this.ui.updateNotificationBadges();
+
+                if (upcoming.length > 0) {
+                    this.ui.showNotification(
+                        `${upcoming.length} proceeding(s) scheduled for tomorrow`,
+                        'info',
+                        'Upcoming Proceedings'
+                    );
+                }
+            }
+
+            async requestNotificationPermission() {
+                if ('Notification' in window) {
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        this.ui.showNotification('Notifications enabled successfully', 'success');
+                        new Notification('Legal Case Manager Pro', {
+                            body: 'You will now receive alerts for upcoming proceedings!',
+                            icon: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2220%22%20fill%3D%22%231a237e%22%2F%3E%3Ctext%20x%3D%2250%22%20y%3D%2265%22%20font-size%3D%2250%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-family%3D%22Arial%22%3E⚖️%3C%2Ftext%3E%3C%2Fsvg%3E'
+                        });
+                    } else {
+                        this.ui.showNotification('Notification permission denied', 'warning');
+                    }
+                }
+            }
+
+            showCaseModal(caseData = null) {
+                const clients = stateManager.getState('clients');
+                const courts = APP_CONFIG.courts;
+                const statuses = APP_CONFIG.caseStatuses;
+                
+                this.currentModalData = caseData;
+                
+                this.ui.openModal(`
+                    <div class="modal-header">
+                        <h3 class="modal-title">${caseData ? 'Edit Case' : 'New Case Registration'}</h3>
+                        <button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="caseForm" onsubmit="return false;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Case Number <span class="required">*</span></label>
+                                    <input type="text" class="form-input" id="caseNumber" value="${caseData?.caseNumber || ''}" required placeholder="e.g., CR/2024/001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Case Title</label>
+                                    <input type="text" class="form-input" id="caseTitle" value="${caseData?.caseTitle || ''}" placeholder="e.g., State vs. Defendant">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Client <span class="required">*</span></label>
+                                <select class="form-select" id="clientId" required>
+                                    <option value="">-- Select Client --</option>
+                                    ${clients.map(c => `<option value="${c.id}" ${caseData?.clientId === c.id ? 'selected' : ''}>${c.fullName} (${c.mobile})</option>`).join('')}
+                                </select>
+                                <div class="add-client-link" onclick="app.showClientModal(); app.ui.closeModal();">
+                                    <i class="fas fa-plus-circle"></i> Add New Client
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Court Category</label>
+                                    <select class="form-select" id="courtCategory">
+                                        <option value="">-- Select Court --</option>
+                                        ${courts.map(c => `<option value="${c}" ${caseData?.courtCategory === c ? 'selected' : ''}>${c}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Case Type</label>
+                                    <input type="text" class="form-input" id="caseType" value="${caseData?.caseType || ''}" placeholder="Civil/Criminal/etc.">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Filing Date</label>
+                                    <input type="date" class="form-input" id="filingDate" value="${caseData?.filingDate || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Total Fees (₹)</label>
+                                    <input type="number" class="form-input" id="totalFees" value="${caseData?.totalFees || ''}" min="0" step="100">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" id="status">
+                                        ${statuses.map(s => `<option value="${s}" ${caseData?.status === s ? 'selected' : (s === 'Active' && !caseData ? 'selected' : '')}>${s}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Next Hearing Date</label>
+                                    <input type="date" class="form-input" id="nextDate" value="${caseData?.nextDate || ''}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Description / Notes</label>
+                                <textarea class="form-textarea" id="description" rows="3" placeholder="Case details, important notes...">${caseData?.description || ''}</textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button>
+                        <button class="btn btn-primary" onclick="app.saveCase('${caseData?.id || ''}')">
+                            <i class="fas fa-save"></i> ${caseData ? 'Update' : 'Save'} Case
+                        </button>
+                    </div>
+                `);
+            }
+
+            async saveCase(id) {
+                const caseNumber = document.getElementById('caseNumber')?.value?.trim();
+                if (!caseNumber) {
+                    this.ui.showNotification('Case Number is required', 'error');
+                    return;
+                }
+
+                const clientId = document.getElementById('clientId')?.value;
+                if (!clientId) {
+                    this.ui.showNotification('Please select a client', 'error');
+                    return;
+                }
+
+                const clients = stateManager.getState('clients');
+                const client = clients.find(c => c.id === clientId);
+
+                const caseData = {
+                    caseNumber,
+                    caseTitle: document.getElementById('caseTitle')?.value || '',
+                    clientId,
+                    clientName: client?.fullName || '',
+                    courtCategory: document.getElementById('courtCategory')?.value || '',
+                    caseType: document.getElementById('caseType')?.value || '',
+                    filingDate: document.getElementById('filingDate')?.value || '',
+                    totalFees: parseFloat(document.getElementById('totalFees')?.value) || 0,
+                    status: document.getElementById('status')?.value || 'Active',
+                    nextDate: document.getElementById('nextDate')?.value || '',
+                    description: document.getElementById('description')?.value || ''
+                };
+
+                this.ui.showLoading(true);
+                try {
+                    if (id) {
+                        await firebaseService.update('cases', id, caseData);
+                        this.ui.showNotification('Case updated successfully', 'success');
+                    } else {
+                        await firebaseService.create('cases', caseData);
+                        this.ui.showNotification('Case registered successfully', 'success');
+                    }
+                    await this.loadData();
+                    this.ui.closeModal();
+                } catch (error) {
+                    this.ui.showNotification('Failed to save case: ' + error.message, 'error');
+                }
+                this.ui.showLoading(false);
+            }
+
+            editCase(id) {
+                const caseData = stateManager.getState('cases').find(c => c.id === id);
+                if (caseData) this.showCaseModal(caseData);
+            }
+
+            async deleteCase(id) {
+                if (!confirm('Are you sure you want to delete this case? This action cannot be undone.')) return;
+                
+                this.ui.showLoading(true);
+                try {
+                    await firebaseService.delete('cases', id);
+                    this.ui.showNotification('Case deleted successfully', 'success');
+                    await this.loadData();
+                } catch (error) {
+                    this.ui.showNotification('Failed to delete case', 'error');
+                }
+                this.ui.showLoading(false);
+            }
+
+            showClientModal(clientData = null) {
+                this.ui.openModal(`
+                    <div class="modal-header">
+                        <h3 class="modal-title">${clientData ? 'Edit Client' : 'New Client Registration'}</h3>
+                        <button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="clientForm" onsubmit="return false;">
+                            <div class="form-group">
+                                <label class="form-label">Full Name <span class="required">*</span></label>
+                                <input type="text" class="form-input" id="fullName" value="${clientData?.fullName || ''}" required placeholder="Enter client's full name">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Mobile Number <span class="required">*</span></label>
+                                    <input type="tel" class="form-input" id="mobile" value="${clientData?.mobile || ''}" required placeholder="10-digit mobile number">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" class="form-input" id="email" value="${clientData?.email || ''}" placeholder="client@example.com">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Address</label>
+                                <textarea class="form-textarea" id="address" rows="3" placeholder="Complete address...">${clientData?.address || ''}</textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button>
+                        <button class="btn btn-primary" onclick="app.saveClient('${clientData?.id || ''}')">
+                            <i class="fas fa-save"></i> ${clientData ? 'Update' : 'Save'} Client
+                        </button>
+                    </div>
+                `);
+            }
+
+            async saveClient(id) {
+                const fullName = document.getElementById('fullName')?.value?.trim();
+                const mobile = document.getElementById('mobile')?.value?.trim();
+                
+                if (!fullName) {
+                    this.ui.showNotification('Full name is required', 'error');
+                    return;
+                }
+                if (!mobile) {
+                    this.ui.showNotification('Mobile number is required', 'error');
+                    return;
+                }
+
+                const clientData = {
+                    fullName,
+                    mobile,
+                    email: document.getElementById('email')?.value || '',
+                    address: document.getElementById('address')?.value || ''
+                };
+
+                this.ui.showLoading(true);
+                try {
+                    if (id) {
+                        await firebaseService.update('clients', id, clientData);
+                        this.ui.showNotification('Client updated successfully', 'success');
+                    } else {
+                        await firebaseService.create('clients', clientData);
+                        this.ui.showNotification('Client registered successfully', 'success');
+                    }
+                    await this.loadData();
+                    this.ui.closeModal();
+                    
+                    if (this.currentModalData === null && stateManager.getState('activeView') === 'cases') {
+                        setTimeout(() => this.showCaseModal(), 100);
+                    }
+                } catch (error) {
+                    this.ui.showNotification('Failed to save client: ' + error.message, 'error');
+                }
+                this.ui.showLoading(false);
+            }
+
+            editClient(id) {
+                const clientData = stateManager.getState('clients').find(c => c.id === id);
+                if (clientData) this.showClientModal(clientData);
+            }
+
+            async deleteClient(id) {
+                const cases = stateManager.getState('cases');
+                const clientCases = cases.filter(c => c.clientId === id);
+                
+                if (clientCases.length > 0) {
+                    this.ui.showNotification(`Cannot delete client with ${clientCases.length} active case(s)`, 'error');
+                    return;
+                }
+                
+                if (!confirm('Are you sure you want to delete this client?')) return;
+                
+                this.ui.showLoading(true);
+                try {
+                    await firebaseService.delete('clients', id);
+                    this.ui.showNotification('Client deleted successfully', 'success');
+                    await this.loadData();
+                } catch (error) {
+                    this.ui.showNotification('Failed to delete client', 'error');
+                }
+                this.ui.showLoading(false);
+            }
+
+            showBillingModal(caseId = null) {
+                const cases = stateManager.getState('cases').filter(c => (c.totalFees || 0) > 0);
+                const selectedCase = caseId ? cases.find(c => c.id === caseId) : null;
+                
+                if (cases.length === 0) {
+                    this.ui.showNotification('No cases with fees found. Please add case fees first.', 'warning');
+                    return;
+                }
+                
+                this.ui.openModal(`
+                    <div class="modal-header">
+                        <h3 class="modal-title">Record Payment</h3>
+                        <button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <form onsubmit="return false;">
+                            <div class="form-group">
+                                <label class="form-label">Select Case <span class="required">*</span></label>
+                                <select class="form-select" id="billingCaseId" required onchange="app.updateDueAmount()">
+                                    <option value="">-- Select Case --</option>
+                                    ${cases.map(c => {
+                                        const paid = stateManager.getState('billings')
+                                            .filter(b => b.caseId === c.id)
+                                            .reduce((s, b) => s + (b.amount || 0), 0);
+                                        const due = (c.totalFees || 0) - paid;
+                                        return `<option value="${c.id}" data-due="${due}" ${caseId === c.id ? 'selected' : ''}>
+                                            ${c.caseNumber} - ${c.clientName} (Due: ₹${due.toLocaleString()})
+                                        </option>`;
+                                    }).join('')}
+                                </select>
+                                <div id="dueAmountDisplay" style="margin-top: 8px; color: var(--text-secondary);"></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Amount (₹) <span class="required">*</span></label>
+                                    <input type="number" class="form-input" id="paymentAmount" min="1" required placeholder="Enter amount">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Payment Method</label>
+                                    <select class="form-select" id="paymentMethod">
+                                        <option value="Cash">Cash</option>
+                                        <option value="Bank Transfer">Bank Transfer</option>
+                                        <option value="Cheque">Cheque</option>
+                                        <option value="UPI">UPI</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Payment Date</label>
+                                <input type="date" class="form-input" id="paymentDate" value="${new Date().toISOString().split('T')[0]}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Description / Reference</label>
+                                <textarea class="form-textarea" id="paymentDescription" rows="2" placeholder="Payment reference, transaction ID..."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button>
+                        <button class="btn btn-primary" onclick="app.saveBilling()">
+                            <i class="fas fa-check"></i> Record Payment
+                        </button>
+                    </div>
+                `);
+                
+                setTimeout(() => this.updateDueAmount(), 100);
+            }
+
+            updateDueAmount() {
+                const select = document.getElementById('billingCaseId');
+                const display = document.getElementById('dueAmountDisplay');
+                if (!select || !display) return;
+                
+                const option = select.options[select.selectedIndex];
+                const due = option?.dataset?.due;
+                
+                if (due) {
+                    display.innerHTML = `<i class="fas fa-info-circle"></i> Pending Due Amount: <strong>₹${parseFloat(due).toLocaleString()}</strong>`;
+                } else {
+                    display.innerHTML = '';
+                }
+            }
+
+            async saveBilling() {
+                const caseId = document.getElementById('billingCaseId')?.value;
+                const amount = parseFloat(document.getElementById('paymentAmount')?.value);
+                
+                if (!caseId) {
+                    this.ui.showNotification('Please select a case', 'error');
+                    return;
+                }
+                if (!amount || amount <= 0) {
+                    this.ui.showNotification('Please enter a valid amount', 'error');
+                    return;
+                }
+
+                const cases = stateManager.getState('cases');
+                const caseData = cases.find(c => c.id === caseId);
+                const invoiceNumber = `INV-${Date.now().toString().slice(-8)}`;
+
+                const billingData = {
+                    caseId,
+                    clientId: caseData?.clientId,
+                    invoiceNumber,
+                    amount,
+                    paymentMethod: document.getElementById('paymentMethod')?.value || 'Cash',
+                    paymentDate: document.getElementById('paymentDate')?.value || new Date().toISOString().split('T')[0],
+                    description: document.getElementById('paymentDescription')?.value || ''
+                };
+
+                this.ui.showLoading(true);
+                try {
+                    const result = await firebaseService.create('billings', billingData);
+                    this.ui.showNotification(`Payment of ₹${amount.toLocaleString()} recorded successfully`, 'success');
+                    await this.loadData();
+                    this.ui.closeModal();
+                    
+                    setTimeout(() => this.generateInvoice(result.id), 500);
+                } catch (error) {
+                    this.ui.showNotification('Failed to record payment: ' + error.message, 'error');
+                }
+                this.ui.showLoading(false);
+            }
+
+            generateInvoice(billingId) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const billing = stateManager.getState('billings').find(b => b.id === billingId);
+                if (!billing) return;
+                
+                const caseData = stateManager.getState('cases').find(c => c.id === billing.caseId);
+                const clientData = stateManager.getState('clients').find(c => c.id === billing.clientId);
+                
+                const allPayments = stateManager.getState('billings').filter(b => b.caseId === billing.caseId);
+                const totalPaid = allPayments.reduce((s, b) => s + b.amount, 0);
+                const totalFees = caseData?.totalFees || 0;
+                const due = totalFees - totalPaid;
+                
+                // Header
+                doc.setFontSize(22);
+                doc.setTextColor(26, 35, 126);
+                doc.text('LEGAL CASE MANAGER PRO', 105, 20, { align: 'center' });
+                
+                doc.setFontSize(14);
+                doc.setTextColor(255, 111, 0);
+                doc.text('INVOICE / PAYMENT RECEIPT', 105, 30, { align: 'center' });
+                
+                doc.setFontSize(10);
+                doc.setTextColor(44, 62, 80);
+                doc.text(`Invoice #: ${billing.invoiceNumber}`, 20, 45);
+                doc.text(`Date: ${billing.paymentDate || 'N/A'}`, 20, 52);
+                doc.text(`Time: ${new Date().toLocaleTimeString()}`, 20, 59);
+                
+                // Advocate Details
+                doc.setFontSize(12);
+                doc.setTextColor(26, 35, 126);
+                doc.text('Advocate Details', 20, 75);
+                doc.setFontSize(10);
+                doc.setTextColor(44, 62, 80);
+                doc.text(APP_CONFIG.advocate.name, 20, 83);
+                doc.text(APP_CONFIG.advocate.title, 20, 90);
+                
+                // Client Details
+                doc.setFontSize(12);
+                doc.setTextColor(26, 35, 126);
+                doc.text('Client Details', 120, 75);
+                doc.setFontSize(10);
+                doc.setTextColor(44, 62, 80);
+                doc.text(clientData?.fullName || 'N/A', 120, 83);
+                doc.text(`Mobile: ${clientData?.mobile || 'N/A'}`, 120, 90);
+                
+                // Case Details
+                doc.setFontSize(12);
+                doc.setTextColor(26, 35, 126);
+                doc.text('Case Details', 20, 110);
+                doc.setFontSize(10);
+                doc.setTextColor(44, 62, 80);
+                doc.text(`Case Number: ${caseData?.caseNumber || 'N/A'}`, 20, 118);
+                doc.text(`Court: ${caseData?.courtCategory || 'N/A'}`, 20, 125);
+                
+                // Payment Table
+                doc.autoTable({
+                    startY: 140,
+                    head: [['Description', 'Amount (₹)']],
+                    body: [
+                        ['Total Case Fees', totalFees.toLocaleString()],
+                        ['Amount Paid (This Payment)', billing.amount.toLocaleString()],
+                        ['Total Paid to Date', totalPaid.toLocaleString()],
+                        ['Balance Due', due.toLocaleString()]
+                    ],
+                    theme: 'grid',
+                    headStyles: { fillColor: [26, 35, 126], textColor: 255 },
+                    footStyles: { fillColor: [240, 240, 240] }
+                });
+                
+                // Footer
+                const finalY = doc.lastAutoTable.finalY + 15;
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.text('Thank you for your business!', 105, finalY, { align: 'center' });
+                doc.text('This is a computer generated receipt - valid without signature.', 105, finalY + 8, { align: 'center' });
+                doc.text(`Generated by: ${APP_CONFIG.appName} v${APP_CONFIG.version}`, 105, finalY + 16, { align: 'center' });
+                
+                doc.save(`Invoice_${billing.invoiceNumber}.pdf`);
+                this.ui.showNotification('Invoice PDF generated successfully', 'success');
+            }
+
+            shareViaWhatsApp(billingId) {
+                const billing = stateManager.getState('billings').find(b => b.id === billingId);
+                if (!billing) return;
+                
+                const caseData = stateManager.getState('cases').find(c => c.id === billing.caseId);
+                const clientData = stateManager.getState('clients').find(c => c.id === billing.clientId);
+                
+                const totalPaid = stateManager.getState('billings')
+                    .filter(b => b.caseId === billing.caseId)
+                    .reduce((s, b) => s + b.amount, 0);
+                const due = (caseData?.totalFees || 0) - totalPaid;
+                
+                const message = `*⚖️ LEGAL CASE MANAGER PRO - PAYMENT RECEIPT*\n\n` +
+                    `📋 *Invoice #:* ${billing.invoiceNumber}\n` +
+                    `📅 *Date:* ${billing.paymentDate}\n` +
+                    `👤 *Client:* ${clientData?.fullName || 'N/A'}\n` +
+                    `📂 *Case No.:* ${caseData?.caseNumber || 'N/A'}\n` +
+                    `🏛️ *Court:* ${caseData?.courtCategory || 'N/A'}\n\n` +
+                    `💰 *Amount Paid:* ₹${billing.amount.toLocaleString()}\n` +
+                    `💳 *Payment Method:* ${billing.paymentMethod}\n` +
+                    `📊 *Total Paid:* ₹${totalPaid.toLocaleString()}\n` +
+                    `⚠️ *Balance Due:* ₹${due.toLocaleString()}\n\n` +
+                    `_Thank you for your payment!_\n` +
+                    `*${APP_CONFIG.advocate.name}*\n` +
+                    `${APP_CONFIG.advocate.title}`;
+                
+                window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+                this.ui.showNotification('Opening WhatsApp...', 'success');
+            }
+
+            async deleteBilling(id) {
+                if (!confirm('Are you sure you want to delete this payment record?')) return;
+                
+                this.ui.showLoading(true);
+                try {
+                    await firebaseService.delete('billings', id);
+                    this.ui.showNotification('Payment record deleted', 'success');
+                    await this.loadData();
+                } catch (error) {
+                    this.ui.showNotification('Failed to delete record', 'error');
+                }
+                this.ui.showLoading(false);
+            }
+
+            addProceeding(caseId) {
+                const caseData = stateManager.getState('cases').find(c => c.id === caseId);
+                const types = APP_CONFIG.proceedingTypes;
+                
+                this.ui.openModal(`
+                    <div class="modal-header">
+                        <h3 class="modal-title">Add Proceeding Record</h3>
+                        <button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <form onsubmit="return false;">
+                            <div class="form-group">
+                                <label class="form-label">Case</label>
+                                <input type="text" class="form-input" value="${caseData?.caseNumber} - ${caseData?.clientName}" readonly style="background: var(--background);">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Proceeding Date</label>
+                                    <input type="date" class="form-input" id="proceedingDate" value="${new Date().toISOString().split('T')[0]}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Proceeding Type</label>
+                                    <select class="form-select" id="proceedingType">
+                                        ${types.map(t => `<option value="${t}">${t}</option>`).join('')}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-textarea" id="proceedingDesc" rows="2" placeholder="What happened in this proceeding..."></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Next Date <span class="required">*</span></label>
+                                    <input type="date" class="form-input" id="nextProceedingDate" required value="${caseData?.nextDate || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Outcome / Order</label>
+                                    <input type="text" class="form-input" id="proceedingOutcome" placeholder="e.g., Adjourned, Evidence recorded...">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button>
+                        <button class="btn btn-primary" onclick="app.saveProceeding('${caseId}')">
+                            <i class="fas fa-save"></i> Save Proceeding
+                        </button>
+                    </div>
+                `);
+            }
+
+            async saveProceeding(caseId) {
+                const nextDate = document.getElementById('nextProceedingDate')?.value;
+                if (!nextDate) {
+                    this.ui.showNotification('Next date is required', 'error');
+                    return;
+                }
+
+                const caseData = stateManager.getState('cases').find(c => c.id === caseId);
+                
+                const proceedingData = {
+                    caseId,
+                    caseNumber: caseData?.caseNumber,
+                    clientName: caseData?.clientName,
+                    courtCategory: caseData?.courtCategory,
+                    proceedingDate: document.getElementById('proceedingDate')?.value || '',
+                    proceedingType: document.getElementById('proceedingType')?.value || 'Hearing',
+                    description: document.getElementById('proceedingDesc')?.value || '',
+                    nextDate,
+                    outcome: document.getElementById('proceedingOutcome')?.value || '',
+                    notified: false
+                };
+
+                this.ui.showLoading(true);
+                try {
+                    await firebaseService.create('proceedings', proceedingData);
+                    await firebaseService.update('cases', caseId, { 
+                        nextDate,
+                        updatedAt: new Date().toISOString()
+                    });
+                    this.ui.showNotification('Proceeding recorded successfully', 'success');
+                    await this.loadData();
+                    this.checkTomorrowProceedings();
+                    this.ui.closeModal();
+                } catch (error) {
+                    this.ui.showNotification('Failed to save proceeding', 'error');
+                }
+                this.ui.showLoading(false);
+            }
+
+            sendNotification(proceedingId) {
+                const proceeding = stateManager.getState('proceedings').find(p => p.id === proceedingId);
+                if (!proceeding) return;
+                
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification('⚖️ Proceeding Reminder', {
+                        body: `Case: ${proceeding.caseNumber}\nClient: ${proceeding.clientName}\nCourt: ${proceeding.courtCategory}\nDate: ${proceeding.nextDate}\nType: ${proceeding.proceedingType}`,
+                        icon: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2220%22%20fill%3D%22%231a237e%22%2F%3E%3Ctext%20x%3D%2250%22%20y%3D%2265%22%20font-size%3D%2250%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-family%3D%22Arial%22%3E⚖️%3C%2Ftext%3E%3C%2Fsvg%3E',
+                        requireInteraction: true
+                    });
+                    this.ui.showNotification('Notification sent', 'success');
+                } else {
+                    this.requestNotificationPermission();
+                }
+            }
+
+            sendAllNotifications() {
+                const upcoming = stateManager.computed.upcomingProceedings();
+                upcoming.forEach(p => this.sendNotification(p.id));
+                this.ui.showNotification(`Sent ${upcoming.length} notifications`, 'success');
+            }
+        }
+
+        // Initialize Application
+        let app;
+        document.addEventListener('DOMContentLoaded', async () => {
+            app = new LegalCaseManager();
+            await app.initialize();
+            window.app = app;
+        });
+
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'lcm-pro-v1';
+                    const urlsToCache = ['/'];
+                    
+                    self.addEventListener('install', (event) => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
+                        );
+                    });
+                    
+                    self.addEventListener('fetch', (event) => {
+                        event.respondWith(
+                            caches.match(event.request).then((response) => response || fetch(event.request))
+                        );
+                    });
+                `;
+                
+                navigator.serviceWorker.register(
+                    URL.createObjectURL(new Blob([swCode], { type: 'application/javascript' }))
+                ).then(reg => console.log('✅ Service Worker registered'))
+                  .catch(err => console.log('⚠️ Service Worker failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
