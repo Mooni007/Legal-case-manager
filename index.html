@@ -103,7 +103,7 @@
         
         /* Tables */
         .data-table-container { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow-x: auto; margin-bottom: 20px; }
-        .table-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .table-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
         .table-title { font-size: 18px; font-weight: 600; }
         .data-table { width: 100%; border-collapse: collapse; min-width: 600px; }
         .data-table th { background: var(--bg); padding: 12px 16px; text-align: left; font-weight: 600; font-size: 13px; text-transform: uppercase; color: var(--text-secondary); }
@@ -135,9 +135,10 @@
         .form-input, .form-select, .form-textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--surface); }
         .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,35,126,0.1); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .due-amount-display { background: var(--bg); padding: 12px; border-radius: 8px; margin-top: 8px; font-weight: 500; }
         @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
         
-        /* Professional Toast Notification */
+        /* Professional Toast */
         .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: var(--surface); padding: 16px 20px; border-radius: 16px; box-shadow: var(--shadow-xl); display: flex; align-items: center; gap: 14px; min-width: 320px; border-left: 5px solid; animation: slideIn 0.3s; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(100px); } }
@@ -152,7 +153,7 @@
         .toast-content { flex: 1; }
         .toast-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; color: var(--text); }
         .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.15s; }
+        .toast-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; border-radius: 6px; }
         .toast-close:hover { background: rgba(0,0,0,0.05); color: var(--text); }
         
         /* Loading Overlay */
@@ -160,16 +161,28 @@
         .spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
+        /* Pending Proceeding Popup */
+        .pending-popup { position: fixed; top: 80px; right: 20px; width: 380px; max-width: 90vw; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-xl); z-index: 1500; border-left: 5px solid var(--warning); overflow: hidden; }
+        .pending-popup-header { padding: 16px; background: linear-gradient(135deg, var(--warning), #ffb74d); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .pending-popup-body { padding: 16px; max-height: 400px; overflow-y: auto; }
+        .pending-item { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+        .pending-item:hover { background: var(--bg); }
+        .pending-item:last-child { border-bottom: none; }
+        .pending-case { font-weight: 600; color: var(--primary); }
+        .pending-client { font-size: 14px; color: var(--text-secondary); }
+        .pending-date { font-size: 12px; color: var(--error); margin-top: 4px; }
+        
         @media (max-width: 768px) {
             .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 500; transform: translateX(-100%); }
             .sidebar.mobile-open { transform: translateX(0); }
             .mobile-menu-toggle { display: block; }
             .search-container { display: none; }
             .quick-actions .btn span { display: none; }
+            .pending-popup { top: 10px; right: 10px; left: 10px; width: auto; }
         }
         
         .add-client-link { color: var(--primary); cursor: pointer; font-size: 13px; margin-top: 4px; text-decoration: underline; }
-        .filters-section { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filters-section { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
         .filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
     </style>
 </head>
@@ -235,6 +248,7 @@
         <div class="modal-container" id="modalContainer"></div>
     </div>
     <div class="toast-container" id="toastContainer"></div>
+    <div class="pending-popup" id="pendingPopup" style="display:none;"></div>
 
     <script>
         // ========== CONFIGURATION ==========
@@ -245,17 +259,21 @@
         // ========== STATE MANAGER ==========
         class StateManager {
             constructor() {
-                this.state = { isOnline: navigator.onLine, cases:[], clients:[], billings:[], proceedings:[], filters:{ searchTerm:'', courtFilter:'all', statusFilter:'all' }, activeView:'dashboard' };
+                this.state = { isOnline: navigator.onLine, cases:[], clients:[], billings:[], proceedings:[], filters:{ searchTerm:'', courtFilter:'all', statusFilter:'all' }, activeView:'dashboard', pendingProceedings:[] };
                 this.subs = new Map();
+                this.loadFromStorage();
             }
             setState(upd) {
                 const changes = {};
                 for(let k in upd) if(JSON.stringify(this.state[k])!==JSON.stringify(upd[k])) { changes[k]={old:this.state[k],new:upd[k]}; this.state[k]=upd[k]; }
                 if(Object.keys(changes).length) this.notify(changes);
+                this.saveToStorage();
             }
             getState(k) { return k ? this.state[k] : {...this.state}; }
             subscribe(k, cb) { if(!this.subs.has(k)) this.subs.set(k,new Set()); this.subs.get(k).add(cb); return ()=>this.subs.get(k)?.delete(cb); }
             notify(changes) { for(let k in changes) { const s=this.subs.get(k); if(s) s.forEach(cb=>cb(changes[k].new,changes[k].old)); } }
+            saveToStorage() { try { localStorage.setItem('lcm_pending', JSON.stringify(this.state.pendingProceedings)); } catch(e) {} }
+            loadFromStorage() { try { const p = localStorage.getItem('lcm_pending'); if(p) this.state.pendingProceedings = JSON.parse(p); } catch(e) {} }
             computed = {
                 filteredCases: () => {
                     const {cases, filters} = this.state;
@@ -266,7 +284,8 @@
                         return true;
                     });
                 },
-                upcomingProceedings: () => { const d=new Date(); d.setDate(d.getDate()+1); const ts=d.toISOString().split('T')[0]; return this.state.proceedings.filter(p=>p.nextDate===ts && !p.notified); },
+                upcomingProceedings: (days = 1) => { const d=new Date(); d.setDate(d.getDate()+days); const ts=d.toISOString().split('T')[0]; return this.state.proceedings.filter(p=>p.nextDate===ts && !p.notified); },
+                allPendingProceedings: () => { const today = new Date().toISOString().split('T')[0]; return this.state.proceedings.filter(p=>p.nextDate <= today && !p.notified); },
                 statistics: () => { const {cases,billings}=this.state; const tf=cases.reduce((s,c)=>s+(c.totalFees||0),0); const tp=billings.reduce((s,b)=>s+(b.amount||0),0); return { totalCases:cases.length, activeCases:cases.filter(c=>c.status==='Active').length, disposedCases:cases.filter(c=>c.status==='Disposed').length, totalFees:tf, totalPaid:tp, totalDue:tf-tp }; }
             };
         }
@@ -274,42 +293,44 @@
 
         // ========== FIREBASE SERVICE ==========
         class FirebaseService {
-            constructor() { this.db = null; this.online = navigator.onLine; this.initialized = false; }
-            
+            constructor() { this.db = null; this.online = navigator.onLine; this.initialized = false; this.listeners = []; }
             async init() {
                 if (this.initialized) return true;
                 try {
                     if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
                     this.db = firebase.firestore();
-                    try { await this.db.enablePersistence({ synchronizeTabs: true }); console.log('✅ Offline persistence enabled'); } catch(e) { console.warn('Persistence:', e.code); }
+                    try { await this.db.enablePersistence({ synchronizeTabs: true }); } catch(e) {}
                     this.setupConnectionMonitoring();
                     this.initialized = true;
                     return true;
-                } catch(e) { console.error('Firebase init error:', e); this.initialized = true; return false; }
+                } catch(e) { this.initialized = true; return false; }
             }
-            
             setupConnectionMonitoring() {
                 const update = (isOnline) => { this.online = isOnline; state.setState({ isOnline }); const el = document.getElementById('connectionStatus'); if(el) { el.classList.toggle('offline', !isOnline); el.querySelector('span').textContent = isOnline ? 'Online' : 'Offline'; } };
                 window.addEventListener('online', () => update(true));
                 window.addEventListener('offline', () => update(false));
                 update(navigator.onLine);
             }
-            
             async create(col, data) { const ref = await this.db.collection(col).add({...data, currency: CURRENCY.code, createdAt: firebase.firestore.FieldValue.serverTimestamp()}); return { id: ref.id }; }
             async read(col, constraints = []) { let q = this.db.collection(col); constraints.forEach(c => { if(c.type === 'orderBy') q = q.orderBy(c.field, c.dir || 'asc'); }); const snap = await q.get(); return snap.docs.map(d => ({ id: d.id, ...d.data() })); }
             async update(col, id, data) { await this.db.collection(col).doc(id).update({...data, updatedAt: firebase.firestore.FieldValue.serverTimestamp()}); }
             async delete(col, id) { await this.db.collection(col).doc(id).delete(); }
-            listen(col, cb) { return this.db.collection(col).onSnapshot(snap => { const docs = []; snap.docChanges().forEach(c => docs.push({ id: c.doc.id, ...c.doc.data(), changeType: c.type })); cb(docs); }, error => console.error(`Listen error:`, error)); }
+            listen(col, cb) { 
+                const unsub = this.db.collection(col).onSnapshot(snap => { const docs = []; snap.docChanges().forEach(c => docs.push({ id: c.doc.id, ...c.doc.data(), changeType: c.type })); cb(docs); }, error => console.error(`Listen error:`, error));
+                this.listeners.push(unsub); return unsub;
+            }
+            cleanup() { this.listeners.forEach(u => u()); this.listeners = []; }
         }
         const fb = new FirebaseService();
 
-        // ========== UI CONTROLLER (ENHANCED TOAST) ==========
+        // ========== UI CONTROLLER ==========
         class UIController {
             constructor() {
                 this.modalO = document.getElementById('modalOverlay');
                 this.modalC = document.getElementById('modalContainer');
                 this.toastC = document.getElementById('toastContainer');
                 this.loading = document.getElementById('loadingOverlay');
+                this.pendingPopup = document.getElementById('pendingPopup');
             }
             
             showSuccess(message, title = 'Success!') {
@@ -317,37 +338,48 @@
                 t.innerHTML = `<i class="fas fa-check-circle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
                 this.toastC.appendChild(t); setTimeout(() => t.remove(), 4000);
             }
-            
             showError(message, title = 'Error!') {
                 const t = document.createElement('div'); t.className = 'toast error';
                 t.innerHTML = `<i class="fas fa-exclamation-circle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
                 this.toastC.appendChild(t); setTimeout(() => t.remove(), 5000);
             }
-            
             showWarning(message, title = 'Warning!') {
                 const t = document.createElement('div'); t.className = 'toast warning';
                 t.innerHTML = `<i class="fas fa-exclamation-triangle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
                 this.toastC.appendChild(t); setTimeout(() => t.remove(), 4000);
             }
-            
             showInfo(message, title = 'Information') {
                 const t = document.createElement('div'); t.className = 'toast info';
                 t.innerHTML = `<i class="fas fa-info-circle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
                 this.toastC.appendChild(t); setTimeout(() => t.remove(), 4000);
             }
-            
             showLoading(s) { this.loading.style.display = s ? 'flex' : 'none'; }
             openModal(html) { this.modalC.innerHTML = html; this.modalO.classList.add('active'); }
-            closeModal() { this.modalO.classList.remove('active'); app.currentModalData = null; }
+            closeModal() { this.modalO.classList.remove('active'); app.currentModalData = null; app.returnToCaseModal = false; }
             
-            clearModalForm() {
-                const inputs = this.modalC.querySelectorAll('input, select, textarea');
-                inputs.forEach(input => { if(input.type !== 'button' && input.type !== 'submit') input.value = ''; });
+            showPendingPopup(proceedings) {
+                if(proceedings.length === 0) { this.pendingPopup.style.display = 'none'; return; }
+                this.pendingPopup.innerHTML = `
+                    <div class="pending-popup-header">
+                        <span><i class="fas fa-exclamation-triangle"></i> Pending Proceedings (${proceedings.length})</span>
+                        <button style="background:none;border:none;color:white;cursor:pointer;" onclick="document.getElementById('pendingPopup').style.display='none'"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="pending-popup-body">
+                        ${proceedings.map(p => `
+                            <div class="pending-item" onclick="app.disposeProceeding('${p.id}')">
+                                <div class="pending-case">${p.caseNumber} - ${p.courtCategory}</div>
+                                <div class="pending-client">${p.clientName}</div>
+                                <div class="pending-date"><i class="fas fa-calendar"></i> Next: ${p.nextDate} | Type: ${p.proceedingType}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                this.pendingPopup.style.display = 'block';
             }
             
             renderDashboard() {
                 const stats = state.computed.statistics();
-                const upcoming = state.computed.upcomingProceedings();
+                const upcoming = state.computed.upcomingProceedings(1);
                 const recent = state.getState('cases').slice(0, 5);
                 document.getElementById('dashboardView').innerHTML = `
                     <div class="stats-grid">
@@ -416,44 +448,47 @@
                     </div>
                     <div class="filters-section"><button class="btn btn-primary" onclick="app.showBillingModal()"><i class="fas fa-plus"></i> Record Payment</button></div>
                     <div class="data-table-container">
-                        <table class="data-table"><thead><tr><th>Invoice #</th><th>Case</th><th>Client</th><th>Amount</th><th>Method</th><th>Date</th><th></th></tr></thead>
-                        <tbody>${billings.map(b=>{ const c = cases.find(cs=>cs.id===b.caseId); return `<tr><td>${b.invoiceNumber||''}</td><td>${c?.caseNumber||''}</td><td>${c?.clientName||''}</td><td>${CURRENCY.format(b.amount)}</td><td>${b.paymentMethod||''}</td><td>${b.paymentDate||''}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.generateInvoice('${b.id}')"><i class="fas fa-file-pdf"></i></button><button class="btn-table" onclick="app.shareViaWhatsApp('${b.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-table delete" onclick="app.deleteBilling('${b.id}')"><i class="fas fa-trash"></i></button></div></td></tr>`; }).join('') || '<tr><td colspan="7" style="text-align:center;">No payments recorded</td></tr>'}</tbody></table>
+                        <table class="data-table"><thead><tr><th>Invoice #</th><th>Case</th><th>Client</th><th>Amount</th><th>Method</th><th>Date/Time</th><th></th></tr></thead>
+                        <tbody>${billings.map(b=>{ const c = cases.find(cs=>cs.id===b.caseId); const dt = b.createdAt?.toDate?.() || new Date(); return `<tr><td>${b.invoiceNumber||''}</td><td>${c?.caseNumber||''}</td><td>${c?.clientName||''}</td><td>${CURRENCY.format(b.amount)}</td><td>${b.paymentMethod||''}</td><td>${b.paymentDate} ${dt.toLocaleTimeString?.() || ''}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.generateInvoice('${b.id}')"><i class="fas fa-file-pdf"></i></button><button class="btn-table" onclick="app.shareViaWhatsApp('${b.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-table delete" onclick="app.deleteBilling('${b.id}')"><i class="fas fa-trash"></i></button></div></td></tr>`; }).join('') || '<tr><td colspan="7" style="text-align:center;">No payments recorded</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
             
             renderProceedings() {
                 const proceedings = state.getState('proceedings');
-                // Group proceedings by case for better organization
                 const cases = state.getState('cases');
-                
                 document.getElementById('proceedingsView').innerHTML = `
                     <div class="filters-section">
                         <button class="btn btn-primary" onclick="app.navigateTo('cases')"><i class="fas fa-plus"></i> Add Proceeding from Cases</button>
-                        <span style="margin-left:auto;">Total Proceedings: ${proceedings.length}</span>
+                        <span style="margin-left:auto;">Total: ${proceedings.length}</span>
                     </div>
                     <div class="data-table-container">
                         <table class="data-table"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Proceeding Date</th><th>Type</th><th>Next Date</th><th>Outcome</th><th></th></tr></thead>
-                        <tbody>${proceedings.map(p=>{ 
-                            const caseData = cases.find(c => c.id === p.caseId);
-                            return `<tr><td><strong>${p.caseNumber||''}</strong></td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.proceedingDate||''}</td><td>${p.proceedingType||''}</td><td style="color:var(--primary);font-weight:600;">${p.nextDate||''}</td><td>${p.outcome||'Pending'}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.viewCase('${p.caseId}')"><i class="fas fa-eye"></i></button></div></td></tr>`; 
-                        }).join('') || '<tr><td colspan="8" style="text-align:center;">No proceedings recorded. Add proceedings from the Cases section.</td></tr>'}</tbody></table>
+                        <tbody>${proceedings.map(p=>`<tr><td><strong>${p.caseNumber||''}</strong></td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.proceedingDate||''}</td><td>${p.proceedingType||''}</td><td style="color:var(--primary);font-weight:600;">${p.nextDate||''}</td><td>${p.outcome||'Pending'}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.viewCase('${p.caseId}')"><i class="fas fa-eye"></i></button></div></td></tr>`).join('') || '<tr><td colspan="8" style="text-align:center;">No proceedings recorded</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
             
             renderNotifications() {
-                const upcoming = state.computed.upcomingProceedings();
+                const upcoming = state.computed.upcomingProceedings(1);
+                const dayAfter = state.computed.upcomingProceedings(2);
                 document.getElementById('notificationsView').innerHTML = `
                     <div class="data-table-container">
-                        <div class="table-header"><span>Tomorrow's Proceedings (${upcoming.length})</span><button class="btn btn-secondary" onclick="app.sendAllNotifications()"><i class="fas fa-bell"></i> Notify All</button></div>
-                        <table class="data-table"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Next Date</th><th>Type</th></tr></thead>
-                        <tbody>${upcoming.map(p=>`<tr><td>${p.caseNumber||''}</td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.nextDate||''}</td><td>${p.proceedingType||''}</td></tr>`).join('') || '<tr><td colspan="5" style="text-align:center;">No upcoming proceedings</td></tr>'}</tbody></table>
+                        <div class="table-header">
+                            <span>Proceedings</span>
+                            <select class="filter-select" id="proceedingFilter" onchange="app.filterProceedings(this.value)">
+                                <option value="1">Tomorrow's Proceedings</option>
+                                <option value="2">Day After Tomorrow</option>
+                                <option value="all">All Pending</option>
+                            </select>
+                        </div>
+                        <table class="data-table" id="proceedingsTable"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Next Date</th><th>Type</th><th>Action</th></tr></thead>
+                        <tbody>${upcoming.map(p=>`<tr><td>${p.caseNumber||''}</td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.nextDate||''}</td><td>${p.proceedingType||''}</td><td><button class="btn-table" onclick="app.disposeProceeding('${p.id}')"><i class="fas fa-check"></i></button></td></tr>`).join('') || '<tr><td colspan="6" style="text-align:center;">No proceedings</td></tr>'}</tbody></table>
                     </div>
                     <div class="data-table-container" style="margin-top:20px;">
                         <div class="table-header"><span>Notification Settings</span></div>
                         <div style="padding:20px;">
-                            <p><i class="fas fa-check-circle" style="color:var(--success);"></i> Auto-check runs every hour</p>
+                            <p><i class="fas fa-check-circle" style="color:var(--success);"></i> Pending cases appear until disposed</p>
                             <p><i class="fas fa-check-circle" style="color:var(--success);"></i> All amounts in PKR (Rs.)</p>
                             <button class="btn btn-secondary" onclick="app.requestNotificationPermission()"><i class="fas fa-bell"></i> Enable Browser Notifications</button>
                         </div>
@@ -462,7 +497,7 @@
             }
             
             updateBadges() {
-                const count = state.computed.upcomingProceedings().length;
+                const count = state.computed.upcomingProceedings(1).length;
                 const badge = document.getElementById('notificationBadge');
                 const headerBadge = document.getElementById('headerNotificationBadge');
                 if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'block' : 'none'; }
@@ -476,6 +511,7 @@
                 this.ui = new UIController();
                 this.currentModalData = null;
                 this.isSaving = false;
+                this.returnToCaseModal = false;
             }
             
             async initialize() {
@@ -487,7 +523,8 @@
                     await this.loadData();
                     this.setupRealtimeListeners();
                     this.navigateTo('dashboard');
-                    setInterval(() => this.checkTomorrowProceedings(), 3600000);
+                    this.checkPendingProceedings();
+                    setInterval(() => this.checkPendingProceedings(), 60000);
                     this.ui.showSuccess('System ready for use', 'Welcome to Legal Case Manager Pro');
                 } catch(e) {
                     console.error('Init error:', e);
@@ -505,13 +542,15 @@
                 document.getElementById('refreshData').onclick = () => this.loadData();
                 document.getElementById('globalSearch').oninput = (e) => state.setState({filters: {...state.getState('filters'), searchTerm: e.target.value}});
                 document.getElementById('notificationBell').onclick = () => this.navigateTo('notifications');
-                document.getElementById('logoutBtn').onclick = () => { if(confirm('Clear data and reload?')) { localStorage.clear(); location.reload(); } };
+                document.getElementById('logoutBtn').onclick = () => { if(confirm('Clear data and reload?')) { fb.cleanup(); localStorage.clear(); location.reload(); } };
                 document.addEventListener('keydown', (e) => { if(e.key === 'Escape') this.ui.closeModal(); });
             }
             
             setupStateSubscriptions() {
                 state.subscribe('cases', () => { this.ui.updateBadges(); this.refreshCurrentView(); });
                 state.subscribe('clients', () => this.refreshCurrentView());
+                state.subscribe('billings', () => { if(state.getState('activeView') === 'billing') this.ui.renderBilling(); });
+                state.subscribe('proceedings', () => { this.ui.updateBadges(); this.refreshCurrentView(); });
                 state.subscribe('filters', () => { if(state.getState('activeView') === 'cases') this.ui.renderCases(); });
             }
             
@@ -548,6 +587,17 @@
                     state.setState({clients: [...cur]});
                 });
                 
+                fb.listen('billings', (changes) => {
+                    const cur = state.getState('billings');
+                    changes.forEach(ch => {
+                        const idx = cur.findIndex(b => b.id === ch.id);
+                        if(ch.changeType === 'removed' && idx !== -1) cur.splice(idx, 1);
+                        else if(idx !== -1) cur[idx] = {...cur[idx], ...ch};
+                        else if(ch.changeType !== 'removed') cur.push(ch);
+                    });
+                    state.setState({billings: [...cur]});
+                });
+                
                 fb.listen('proceedings', (changes) => {
                     const cur = state.getState('proceedings');
                     changes.forEach(ch => {
@@ -557,6 +607,7 @@
                         else if(ch.changeType !== 'removed') cur.push(ch);
                     });
                     state.setState({proceedings: [...cur]});
+                    this.checkPendingProceedings();
                 });
             }
             
@@ -564,13 +615,10 @@
                 try {
                     const cases = await fb.read('cases', [{type: 'orderBy', field: 'createdAt', dir: 'desc'}]);
                     const clients = await fb.read('clients', [{type: 'orderBy', field: 'createdAt', dir: 'desc'}]);
-                    const billings = await fb.read('billings', [{type: 'orderBy', field: 'paymentDate', dir: 'desc'}]);
+                    const billings = await fb.read('billings', [{type: 'orderBy', field: 'createdAt', dir: 'desc'}]);
                     const proceedings = await fb.read('proceedings', [{type: 'orderBy', field: 'nextDate', dir: 'asc'}]);
                     state.setState({cases, clients, billings, proceedings});
-                } catch(e) {
-                    console.error('Load error:', e);
-                    state.setState({cases: [], clients: [], billings: [], proceedings: []});
-                }
+                } catch(e) { state.setState({cases: [], clients: [], billings: [], proceedings: []}); }
             }
             
             navigateTo(view) {
@@ -578,31 +626,62 @@
                 document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
                 document.getElementById(`${view}View`).style.display = 'block';
                 state.setState({activeView: view});
-                
                 const titles = {dashboard: 'Dashboard', cases: 'Case Management', clients: 'Client Management', billing: 'Billing & Invoices', proceedings: 'Proceedings', notifications: 'Notifications'};
                 document.getElementById('pageTitle').textContent = titles[view] || view;
-                
                 this.refreshCurrentView();
                 document.getElementById('sidebar').classList.remove('mobile-open');
             }
             
-            checkTomorrowProceedings() {
-                const upcoming = state.computed.upcomingProceedings();
+            checkPendingProceedings() {
+                const today = new Date().toISOString().split('T')[0];
+                const pending = state.getState('proceedings').filter(p => p.nextDate <= today && !p.notified);
+                state.setState({pendingProceedings: pending});
+                this.ui.showPendingPopup(pending);
                 this.ui.updateBadges();
-                if(upcoming.length > 0) {
-                    this.ui.showInfo(`${upcoming.length} proceeding(s) scheduled for tomorrow`, 'Upcoming Proceedings');
+            }
+            
+            async disposeProceeding(proceedingId) {
+                this.ui.openModal(`
+                    <div class="modal-header"><h3>Dispose Proceeding</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="modal-body">
+                        <div class="form-group"><label>Next Hearing Date <span class="required">*</span></label><input type="date" class="form-input" id="disposeNextDate" value="${new Date().toISOString().split('T')[0]}" required></div>
+                        <div class="form-group"><label>Outcome / Remarks</label><textarea class="form-textarea" id="disposeOutcome">Disposed / Adjourned</textarea></div>
+                    </div>
+                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.confirmDispose('${proceedingId}')">Confirm</button></div>
+                `);
+            }
+            
+            async confirmDispose(proceedingId) {
+                const nextDate = document.getElementById('disposeNextDate').value;
+                const outcome = document.getElementById('disposeOutcome').value;
+                const proceeding = state.getState('proceedings').find(p => p.id === proceedingId);
+                if(proceeding) {
+                    await fb.update('proceedings', proceedingId, { nextDate, outcome, notified: true });
+                    await fb.update('cases', proceeding.caseId, { nextDate, status: 'Active' });
+                    this.ui.showSuccess('Proceeding disposed successfully', 'Updated');
+                    await this.loadData();
+                }
+                this.ui.closeModal();
+                this.checkPendingProceedings();
+            }
+            
+            filterProceedings(value) {
+                let data;
+                if(value === '1') data = state.computed.upcomingProceedings(1);
+                else if(value === '2') data = state.computed.upcomingProceedings(2);
+                else data = state.computed.allPendingProceedings();
+                
+                const tbody = document.querySelector('#proceedingsTable tbody');
+                if(tbody) {
+                    tbody.innerHTML = data.map(p=>`<tr><td>${p.caseNumber||''}</td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.nextDate||''}</td><td>${p.proceedingType||''}</td><td><button class="btn-table" onclick="app.disposeProceeding('${p.id}')"><i class="fas fa-check"></i></button></td></tr>`).join('') || '<tr><td colspan="6" style="text-align:center;">No proceedings</td></tr>';
                 }
             }
             
             async requestNotificationPermission() {
                 if('Notification' in window) {
                     const permission = await Notification.requestPermission();
-                    if(permission === 'granted') {
-                        this.ui.showSuccess('Notifications enabled successfully', 'Permission Granted');
-                        new Notification('Legal Case Manager Pro', { body: 'You will receive alerts for upcoming proceedings!' });
-                    } else {
-                        this.ui.showWarning('Notification permission denied', 'Permission Denied');
-                    }
+                    if(permission === 'granted') this.ui.showSuccess('Notifications enabled', 'Permission Granted');
+                    else this.ui.showWarning('Permission denied', 'Notification');
                 }
             }
             
@@ -614,7 +693,7 @@
                     <div class="modal-body">
                         <div class="form-row"><div class="form-group"><label class="form-label">Case Number <span class="required">*</span></label><input class="form-input" id="caseNumber" value="${caseData?.caseNumber||''}" required></div>
                         <div class="form-group"><label class="form-label">Case Title</label><input class="form-input" id="caseTitle" value="${caseData?.caseTitle||''}"></div></div>
-                        <div class="form-group"><label class="form-label">Client <span class="required">*</span></label><select class="form-select" id="clientId" required><option value="">Select Client</option>${clients.map(c=>`<option value="${c.id}" ${caseData?.clientId===c.id?'selected':''}>${c.fullName}</option>`).join('')}</select><div class="add-client-link" onclick="app.showClientModal(); app.ui.closeModal();">+ Add New Client</div></div>
+                        <div class="form-group"><label class="form-label">Client <span class="required">*</span></label><select class="form-select" id="clientId" required><option value="">Select Client</option>${clients.map(c=>`<option value="${c.id}" ${caseData?.clientId===c.id?'selected':''}>${c.fullName}</option>`).join('')}</select><div class="add-client-link" onclick="app.showClientModalFromCase()">+ Add New Client</div></div>
                         <div class="form-row"><div class="form-group"><label>Court</label><select class="form-select" id="courtCategory">${APP_CONFIG.courts.map(c=>`<option ${caseData?.courtCategory===c?'selected':''}>${c}</option>`).join('')}</select></div><div class="form-group"><label>Case Type</label><input class="form-input" id="caseType" value="${caseData?.caseType||''}"></div></div>
                         <div class="form-row"><div class="form-group"><label>Filing Date</label><input type="date" class="form-input" id="filingDate" value="${caseData?.filingDate||''}"></div><div class="form-group"><label>Total Fees (${CURRENCY.symbol})</label><input type="number" class="form-input" id="totalFees" value="${caseData?.totalFees||''}" min="0"></div></div>
                         <div class="form-row"><div class="form-group"><label>Status</label><select class="form-select" id="status">${APP_CONFIG.caseStatuses.map(s=>`<option ${caseData?.status===s?'selected':(s==='Active'&&!caseData?'selected':'')}>${s}</option>`).join('')}</select></div><div class="form-group"><label>Next Hearing</label><input type="date" class="form-input" id="nextDate" value="${caseData?.nextDate||''}"></div></div>
@@ -622,6 +701,12 @@
                     </div>
                     <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.saveCase('${caseData?.id||''}')">${caseData?'Update':'Save'}</button></div>
                 `);
+            }
+            
+            showClientModalFromCase() {
+                this.returnToCaseModal = true;
+                this.ui.closeModal();
+                this.showClientModal();
             }
             
             async saveCase(id) {
@@ -634,47 +719,19 @@
                     const clientId = document.getElementById('clientId').value;
                     if(!clientId) throw new Error('Select client');
                     const client = state.getState('clients').find(c=>c.id===clientId);
-                    const data = {
-                        caseNumber, caseTitle: document.getElementById('caseTitle').value,
-                        clientId, clientName: client?.fullName || '',
-                        courtCategory: document.getElementById('courtCategory').value,
-                        caseType: document.getElementById('caseType').value,
-                        filingDate: document.getElementById('filingDate').value,
-                        totalFees: parseFloat(document.getElementById('totalFees').value)||0,
-                        status: document.getElementById('status').value,
-                        nextDate: document.getElementById('nextDate').value,
-                        description: document.getElementById('description').value
-                    };
+                    const data = { caseNumber, caseTitle: document.getElementById('caseTitle').value, clientId, clientName: client?.fullName || '', courtCategory: document.getElementById('courtCategory').value, caseType: document.getElementById('caseType').value, filingDate: document.getElementById('filingDate').value, totalFees: parseFloat(document.getElementById('totalFees').value)||0, status: document.getElementById('status').value, nextDate: document.getElementById('nextDate').value, description: document.getElementById('description').value };
                     if(id) await fb.update('cases', id, data);
                     else await fb.create('cases', data);
-                    
-                    this.ui.showSuccess(`Case ${caseNumber} has been ${id?'updated':'registered'} successfully`, id?'Case Updated':'Case Created');
+                    this.ui.showSuccess(`Case ${caseNumber} ${id?'updated':'registered'} successfully`, id?'Case Updated':'Case Created');
                     await this.loadData();
                     this.ui.closeModal();
-                } catch(e) { 
-                    this.ui.showError(e.message, 'Save Failed'); 
-                    btn.disabled = false;
-                } finally { 
-                    this.isSaving = false; 
-                }
+                } catch(e) { this.ui.showError(e.message, 'Save Failed'); btn.disabled = false; } 
+                finally { this.isSaving = false; }
             }
             
             editCase(id) { const c = state.getState('cases').find(c=>c.id===id); if(c) this.showCaseModal(c); }
-            
-            viewCase(id) {
-                const c = state.getState('cases').find(c=>c.id===id);
-                if(c) {
-                    this.navigateTo('cases');
-                    setTimeout(() => this.ui.showInfo(`Case: ${c.caseNumber}\nClient: ${c.clientName}\nCourt: ${c.courtCategory}`, 'Case Details'), 100);
-                }
-            }
-            
-            async deleteCase(id) { 
-                if(!confirm('Delete this case permanently?')) return; 
-                await fb.delete('cases', id); 
-                this.ui.showSuccess('Case has been deleted', 'Case Deleted');
-                await this.loadData(); 
-            }
+            viewCase(id) { this.navigateTo('cases'); }
+            async deleteCase(id) { if(!confirm('Delete this case?')) return; await fb.delete('cases', id); this.ui.showSuccess('Case deleted', 'Deleted'); await this.loadData(); }
             
             showClientModal(clientData = null) {
                 this.ui.openModal(`
@@ -699,50 +756,55 @@
                     const data = { fullName, mobile, email: document.getElementById('email').value, address: document.getElementById('address').value };
                     if(id) await fb.update('clients', id, data);
                     else await fb.create('clients', data);
-                    
-                    this.ui.showSuccess(`Client ${fullName} has been ${id?'updated':'registered'} successfully`, id?'Client Updated':'Client Created');
+                    this.ui.showSuccess(`Client ${fullName} ${id?'updated':'registered'} successfully`, id?'Client Updated':'Client Created');
                     await this.loadData();
                     this.ui.closeModal();
-                } catch(e) { 
-                    this.ui.showError(e.message, 'Save Failed'); 
-                    btn.disabled = false;
-                } finally { 
-                    this.isSaving = false; 
-                }
+                    if(this.returnToCaseModal) { this.returnToCaseModal = false; setTimeout(() => this.showCaseModal(), 100); }
+                } catch(e) { this.ui.showError(e.message, 'Save Failed'); btn.disabled = false; } 
+                finally { this.isSaving = false; }
             }
             
             editClient(id) { const c = state.getState('clients').find(c=>c.id===id); if(c) this.showClientModal(c); }
-            
-            async deleteClient(id) { 
-                if(!confirm('Delete this client permanently?')) return; 
-                await fb.delete('clients', id); 
-                this.ui.showSuccess('Client has been deleted', 'Client Deleted');
-                await this.loadData(); 
-            }
+            async deleteClient(id) { if(!confirm('Delete client?')) return; await fb.delete('clients', id); this.ui.showSuccess('Client deleted', 'Deleted'); await this.loadData(); }
             
             showBillingModal(caseId = null) {
                 const cases = state.getState('cases').filter(c=>(c.totalFees||0)>0);
-                if(!cases.length) { this.ui.showWarning('No cases with fees found. Please add case fees first.', 'No Cases'); return; }
+                if(!cases.length) { this.ui.showWarning('No cases with fees found', 'No Cases'); return; }
                 this.ui.openModal(`
                     <div class="modal-header"><h3>Record Payment</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
                     <div class="modal-body">
-                        <div class="form-group"><label>Select Case</label><select class="form-select" id="billingCaseId" required><option value="">Select</option>${cases.map(c=>{ const paid=state.getState('billings').filter(b=>b.caseId===c.id).reduce((s,b)=>s+b.amount,0); return `<option value="${c.id}" ${caseId===c.id?'selected':''}>${c.caseNumber} - ${c.clientName} (Due: ${CURRENCY.format(c.totalFees-paid)})</option>`; }).join('')}</select></div>
+                        <div class="form-group"><label>Select Case</label><select class="form-select" id="billingCaseId" required onchange="app.updateDueDisplay()"><option value="">Select</option>${cases.map(c=>{ const paid=state.getState('billings').filter(b=>b.caseId===c.id).reduce((s,b)=>s+b.amount,0); const due = c.totalFees - paid; return `<option value="${c.id}" data-due="${due}" ${caseId===c.id?'selected':''}>${c.caseNumber} - ${c.clientName}</option>`; }).join('')}</select></div>
+                        <div class="due-amount-display" id="dueAmountDisplay">Select a case to see due amount</div>
                         <div class="form-row"><div class="form-group"><label>Amount (${CURRENCY.symbol})</label><input type="number" class="form-input" id="paymentAmount" min="1" required></div><div class="form-group"><label>Method</label><select class="form-select" id="paymentMethod"><option>Cash</option><option>Bank Transfer</option><option>JazzCash/EasyPaisa</option></select></div></div>
                         <div class="form-group"><label>Date</label><input type="date" class="form-input" id="paymentDate" value="${new Date().toISOString().split('T')[0]}"></div>
                         <div class="form-group"><label>Description</label><textarea class="form-textarea" id="paymentDescription"></textarea></div>
                     </div>
                     <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.saveBilling()">Record Payment</button></div>
                 `);
+                setTimeout(() => this.updateDueDisplay(), 100);
+            }
+            
+            updateDueDisplay() {
+                const select = document.getElementById('billingCaseId');
+                const display = document.getElementById('dueAmountDisplay');
+                if(select && display) {
+                    const opt = select.options[select.selectedIndex];
+                    const due = parseFloat(opt?.dataset?.due) || 0;
+                    display.innerHTML = `<i class="fas fa-info-circle"></i> <strong>Due Amount: ${CURRENCY.format(due)}</strong>`;
+                }
             }
             
             async saveBilling() {
                 const caseId = document.getElementById('billingCaseId').value;
                 const amount = parseFloat(document.getElementById('paymentAmount').value);
                 if(!caseId || !amount) return this.ui.showError('Select case and enter amount', 'Invalid Input');
+                const opt = document.getElementById('billingCaseId').options[document.getElementById('billingCaseId').selectedIndex];
+                const due = parseFloat(opt?.dataset?.due) || 0;
+                if(amount > due) return this.ui.showError(`Amount exceeds due amount (${CURRENCY.format(due)})`, 'Invalid Amount');
+                
                 const data = { caseId, amount, paymentMethod: document.getElementById('paymentMethod').value, paymentDate: document.getElementById('paymentDate').value, description: document.getElementById('paymentDescription').value, invoiceNumber: 'INV-'+Date.now().toString().slice(-8) };
                 const res = await fb.create('billings', data);
-                this.ui.showSuccess(`Payment of ${CURRENCY.format(amount)} recorded successfully`, 'Payment Recorded');
-                await this.loadData();
+                this.ui.showSuccess(`Payment of ${CURRENCY.format(amount)} recorded. Invoice generated.`, 'Payment Successful');
                 this.ui.closeModal();
                 this.generateInvoice(res.id);
             }
@@ -757,12 +819,12 @@
                     const cl = state.getState('clients').find(x=>x.id===b.clientId);
                     const paid = state.getState('billings').filter(x=>x.caseId===b.caseId).reduce((s,x)=>s+x.amount,0);
                     const due = (c?.totalFees||0) - paid;
+                    const now = new Date();
                     doc.setFontSize(20); doc.setTextColor(26,35,126); doc.text('INVOICE',105,20,{align:'center'});
-                    doc.setFontSize(10); doc.text(`Invoice #: ${b.invoiceNumber}`,20,40); doc.text(`Date: ${b.paymentDate}`,20,48);
+                    doc.setFontSize(10); doc.text(`Invoice #: ${b.invoiceNumber}`,20,40); doc.text(`Date: ${b.paymentDate} ${now.toLocaleTimeString()}`,20,48);
                     doc.text(`Advocate: ${APP_CONFIG.advocate.name}`,20,65); doc.text(`Client: ${cl?.fullName||''}`,120,65);
                     doc.autoTable({ startY:80, head:[['Description','Amount (PKR)']], body:[['Total Fees',CURRENCY.format(c?.totalFees||0)],['This Payment',CURRENCY.format(b.amount)],['Total Paid',CURRENCY.format(paid)],['Balance Due',CURRENCY.format(due)]], theme:'grid', headStyles:{fillColor:[26,35,126]} });
                     doc.save(`Invoice_${b.invoiceNumber}.pdf`);
-                    this.ui.showSuccess('Invoice PDF downloaded', 'Invoice Generated');
                 } catch(e) { this.ui.showError('PDF generation failed', 'Error'); }
             }
             
@@ -772,15 +834,9 @@
                 const c = state.getState('cases').find(x=>x.id===b.caseId);
                 const msg = `*Payment Receipt*\nInvoice: ${b.invoiceNumber}\nAmount: ${CURRENCY.format(b.amount)}\nCase: ${c?.caseNumber||''}\nThank you!`;
                 window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
-                this.ui.showInfo('Opening WhatsApp...', 'Share Invoice');
             }
             
-            async deleteBilling(id) { 
-                if(!confirm('Delete payment record?')) return; 
-                await fb.delete('billings', id); 
-                await this.loadData(); 
-                this.ui.showSuccess('Payment record deleted', 'Record Deleted');
-            }
+            async deleteBilling(id) { if(!confirm('Delete payment?')) return; await fb.delete('billings', id); this.ui.showSuccess('Payment deleted', 'Deleted'); }
             
             addProceeding(caseId) {
                 const c = state.getState('cases').find(x=>x.id===caseId);
@@ -792,42 +848,32 @@
                         <div class="form-group"><label>Description</label><textarea class="form-textarea" id="proceedingDesc"></textarea></div>
                         <div class="form-row"><div class="form-group"><label>Next Date <span class="required">*</span></label><input type="date" class="form-input" id="nextDate" required></div><div class="form-group"><label>Outcome</label><input class="form-input" id="outcome"></div></div>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.saveProceeding('${caseId}')">Save Proceeding</button></div>
+                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.saveProceeding('${caseId}')">Save</button></div>
                 `);
             }
             
             async saveProceeding(caseId) {
                 const nextDate = document.getElementById('nextDate').value;
-                if(!nextDate) return this.ui.showError('Next date is required', 'Invalid Input');
+                if(!nextDate) return this.ui.showError('Next date required', 'Invalid');
                 const c = state.getState('cases').find(x=>x.id===caseId);
                 const data = { caseId, caseNumber: c?.caseNumber, clientName: c?.clientName, courtCategory: c?.courtCategory, proceedingDate: document.getElementById('proceedingDate').value, proceedingType: document.getElementById('proceedingType').value, description: document.getElementById('proceedingDesc').value, nextDate, outcome: document.getElementById('outcome').value, notified: false };
                 await fb.create('proceedings', data);
                 await fb.update('cases', caseId, { nextDate });
-                this.ui.showSuccess(`Proceeding recorded for case ${c?.caseNumber}`, 'Proceeding Saved');
-                await this.loadData();
+                this.ui.showSuccess('Proceeding saved', 'Success');
                 this.ui.closeModal();
-                this.checkTomorrowProceedings();
+                this.checkPendingProceedings();
             }
             
-            sendAllNotifications() { 
-                const upcoming = state.computed.upcomingProceedings();
+            sendAllNotifications() {
+                const upcoming = state.computed.upcomingProceedings(1);
                 if(upcoming.length === 0) { this.ui.showInfo('No upcoming proceedings', 'Notifications'); return; }
-                upcoming.forEach(p => {
-                    if('Notification' in window && Notification.permission === 'granted') {
-                        new Notification('⚖️ Proceeding Reminder', { body: `${p.caseNumber} - ${p.clientName}\n${p.nextDate} - ${p.courtCategory}` });
-                    }
-                });
-                this.ui.showSuccess(`${upcoming.length} notification(s) sent`, 'Notifications Sent');
+                upcoming.forEach(p => { if('Notification' in window && Notification.permission === 'granted') new Notification('⚖️ Proceeding Reminder', { body: `${p.caseNumber} - ${p.clientName}\n${p.nextDate} - ${p.courtCategory}` }); });
+                this.ui.showSuccess(`${upcoming.length} notification(s) sent`, 'Sent');
             }
         }
 
-        // Initialize app
         let app;
-        document.addEventListener('DOMContentLoaded', async () => { 
-            app = new LegalCaseManager(); 
-            await app.initialize(); 
-            window.app = app; 
-        });
+        document.addEventListener('DOMContentLoaded', async () => { app = new LegalCaseManager(); await app.initialize(); window.app = app; });
     </script>
 </body>
 </html>
