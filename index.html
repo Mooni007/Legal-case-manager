@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#1a237e">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Legal Case Manager Pro - Mian Shamas Abbas</title>
+    <title>Miss Wahida Malik - Expert & Senior Lawyer</title>
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Legal%20Case%20Manager%20Pro%22,%22short_name%22:%22LCM%20Pro%22,%22theme_color%22:%22%231a237e%22,%22background_color%22:%22%23f5f7fa%22,%22display%22:%22standalone%22,%22start_url%22:%22/%22}">
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Miss%20Wahida%20Malik%20-%20Legal%20Case%20Manager%22,%22short_name%22:%22LCM%20Pro%22,%22theme_color%22:%22%231a237e%22,%22background_color%22:%22%23f5f7fa%22,%22display%22:%22standalone%22,%22start_url%22:%22/%22}">
     
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700;900&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Firebase -->
@@ -28,7 +28,9 @@
             --primary: #1a237e;
             --primary-light: #534bae;
             --primary-dark: #000051;
-            --accent: #ff6f00;
+            --accent: #c9a84c;
+            --accent-light: #e8d5a3;
+            --accent-dark: #8b7328;
             --bg: #f5f7fa;
             --surface: #ffffff;
             --text: #2c3e50;
@@ -42,35 +44,351 @@
             --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
             --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
             --shadow-xl: 0 20px 40px rgba(0,0,0,0.15);
+            --shadow-2xl: 0 30px 60px rgba(0,0,0,0.2);
             --radius: 12px;
             --radius-sm: 8px;
+            --radius-lg: 20px;
             --spacing: 16px;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
-        .app-container { display: flex; min-height: 100vh; }
         
-        /* Urdu Font */
-        .urdu-text { font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        
+        /* ========== PROFESSIONAL STARTUP/SPLASH SCREEN ========== */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #0a0e2e 0%, #1a237e 25%, #283593 50%, #1a237e 75%, #0a0e2e 100%);
+            background-size: 400% 400%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .splash-content {
+            text-align: center;
+            padding: 40px;
+            max-width: 600px;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Animated Scales of Justice Logo */
+        .logo-container {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .scales-logo {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .scales-base {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 8px;
+            background: linear-gradient(90deg, var(--accent), #f5d782, var(--accent));
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(201, 168, 76, 0.5);
+        }
+        
+        .scales-pillar {
+            position: absolute;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 80px;
+            background: linear-gradient(180deg, var(--accent-light), var(--accent));
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
+        }
+        
+        .scales-beam {
+            position: absolute;
+            top: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent), #f5d782, var(--accent));
+            border-radius: 3px;
+            transform-origin: center;
+            animation: balance 4s ease-in-out infinite;
+            box-shadow: 0 2px 15px rgba(201, 168, 76, 0.4);
+        }
+        
+        @keyframes balance {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            25% { transform: translateX(-50%) rotate(-5deg); }
+            75% { transform: translateX(-50%) rotate(5deg); }
+        }
+        
+        .scales-pan-left, .scales-pan-right {
+            position: absolute;
+            width: 30px;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent), #f5d782);
+            border-radius: 2px;
+            top: 45px;
+        }
+        
+        .scales-pan-left {
+            left: 15px;
+            transform: rotate(90deg);
+        }
+        
+        .scales-pan-right {
+            right: 15px;
+            transform: rotate(90deg);
+        }
+        
+        .pan-circle {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--accent);
+            border-radius: 50%;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: radial-gradient(circle at 30% 30%, rgba(201, 168, 76, 0.3), transparent);
+        }
+        
+        .pan-circle::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: var(--accent);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.5;
+        }
+        
+        /* Glowing Rings */
+        .glow-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 2px solid rgba(201, 168, 76, 0.2);
+            animation: pulse 3s ease-out infinite;
+        }
+        
+        .glow-ring:nth-child(2) {
+            width: 240px;
+            height: 240px;
+            animation-delay: 0.5s;
+        }
+        
+        .glow-ring:nth-child(3) {
+            width: 280px;
+            height: 280px;
+            animation-delay: 1s;
+        }
+        
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
+        
+        /* Lawyer Name Styling */
+        .lawyer-name {
+            margin-top: 20px;
+        }
+        
+        .name-line1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #c9a84c 0%, #f5d782 30%, #c9a84c 60%, #f5d782 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            margin-bottom: 5px;
+            animation: shimmer 3s ease infinite;
+            text-shadow: 0 0 30px rgba(201, 168, 76, 0.3);
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .name-line2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--accent-light);
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .title-line {
+            font-size: 16px;
+            color: rgba(255,255,255,0.8);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 10px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(201, 168, 76, 0.3);
+            display: inline-block;
+        }
+        
+        /* Loading Indicator */
+        .loading-indicator {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .loading-bar {
+            width: 200px;
+            height: 3px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .loading-progress {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #f5d782, var(--accent));
+            border-radius: 3px;
+            animation: loadingProgress 2.5s ease-in-out infinite;
+        }
+        
+        @keyframes loadingProgress {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+        
+        .loading-text {
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        
+        .loading-text i {
+            margin: 0 5px;
+            animation: dotPulse 1.5s ease infinite;
+        }
+        
+        .loading-text i:nth-child(2) { animation-delay: 0.2s; }
+        .loading-text i:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes dotPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        /* Decorative Elements */
+        .corner-decoration {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border: 1px solid rgba(201, 168, 76, 0.15);
+        }
+        
+        .corner-tl {
+            top: 30px;
+            left: 30px;
+            border-right: none;
+            border-bottom: none;
+        }
+        
+        .corner-tr {
+            top: 30px;
+            right: 30px;
+            border-left: none;
+            border-bottom: none;
+        }
+        
+        .corner-bl {
+            bottom: 30px;
+            left: 30px;
+            border-right: none;
+            border-top: none;
+        }
+        
+        .corner-br {
+            bottom: 30px;
+            right: 30px;
+            border-left: none;
+            border-top: none;
+        }
+        
+        /* App Container (Hidden initially) */
+        .app-container {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        .app-container.visible {
+            display: flex;
+        }
         
         /* Sidebar */
         .sidebar { width: 280px; background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary) 100%); color: white; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); transition: transform 0.3s; }
         .sidebar.collapsed { width: 80px; }
         .sidebar-header { padding: var(--spacing); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 12px; }
-        .advocate-avatar { width: 48px; height: 48px; background: var(--accent); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .advocate-details h3 { font-size: 15px; font-weight: 600; }
-        .advocate-details .badge { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 20px; font-size: 11px; }
+        .advocate-avatar { width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent), #f5d782); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--primary-dark); }
+        .advocate-details h3 { font-size: 14px; font-weight: 600; color: var(--accent-light); }
+        .advocate-details .badge { background: rgba(201, 168, 76, 0.2); color: var(--accent-light); padding: 2px 8px; border-radius: 20px; font-size: 10px; border: 1px solid rgba(201, 168, 76, 0.3); }
         .nav-menu { flex: 1; padding: 12px; list-style: none; }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 4px; border-radius: var(--radius-sm); cursor: pointer; color: rgba(255,255,255,0.8); transition: all 0.15s; }
         .nav-item i { width: 24px; font-size: 20px; }
-        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
-        .nav-item.active { background: var(--accent); color: white; }
+        .nav-item:hover { background: rgba(201, 168, 76, 0.1); color: var(--accent-light); }
+        .nav-item.active { background: linear-gradient(135deg, var(--accent), #b8963a); color: var(--primary-dark); font-weight: 600; }
         .notification-badge { background: var(--error); color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-left: auto; }
         .sidebar-footer { padding: var(--spacing); border-top: 1px solid rgba(255,255,255,0.1); }
-        .connection-status { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 12px; }
+        .connection-status { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 12px; color: rgba(255,255,255,0.7); }
         .connection-status i { font-size: 10px; color: var(--success); }
         .connection-status.offline i { color: var(--error); }
-        .logout-btn { width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-sm); color: white; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+        .logout-btn { width: 100%; padding: 12px; background: rgba(201, 168, 76, 0.1); border: 1px solid rgba(201, 168, 76, 0.3); border-radius: var(--radius-sm); color: var(--accent-light); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+        .logout-btn:hover { background: rgba(201, 168, 76, 0.2); }
         
         /* Main Content */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -86,29 +404,26 @@
         .btn { padding: 10px 18px; border: none; border-radius: 24px; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.15s; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-light); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-        .btn-success { background: var(--success); color: white; }
-        .btn-warning { background: var(--warning); color: white; }
-        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: var(--surface); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
-        .btn-icon .badge { position: absolute; top: -4px; right: -4px; background: var(--error); color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; }
+        .btn-accent { background: linear-gradient(135deg, var(--accent), #b8963a); color: var(--primary-dark); font-weight: 600; }
+        .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: var(--surface); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: var(--shadow-sm); }
         
         /* Content Area */
         .content-area { flex: 1; padding: 20px; overflow-y: auto; }
         .view { animation: fadeIn 0.2s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         /* Stats Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
         @media (min-width: 600px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (min-width: 900px) { .stats-grid { grid-template-columns: repeat(6, 1fr); } }
-        .stat-card { background: var(--surface); padding: 16px; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+        .stat-card { background: var(--surface); padding: 16px; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border); transition: all 0.2s; }
+        .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
         .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; margin-bottom: 8px; }
         .stat-value { font-size: 24px; font-weight: 700; }
         .stat-label { font-size: 12px; color: var(--text-secondary); }
         
         /* Tables */
-        .data-table-container { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow-x: auto; margin-bottom: 20px; }
+        .data-table-container { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow-x: auto; margin-bottom: 20px; border: 1px solid var(--border); }
         .table-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
         .table-title { font-size: 18px; font-weight: 600; }
         .data-table { width: 100%; border-collapse: collapse; min-width: 600px; }
@@ -118,7 +433,6 @@
         .data-table tbody tr:hover { background: var(--bg); }
         .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
         .status-badge.active { background: rgba(76,175,80,0.1); color: var(--success); }
-        .status-badge.pending { background: rgba(255,152,0,0.1); color: var(--warning); }
         .action-buttons { display: flex; gap: 4px; }
         .btn-table { width: 32px; height: 32px; border: none; border-radius: 6px; background: transparent; color: var(--text-secondary); cursor: pointer; }
         .btn-table:hover { background: var(--primary); color: white; }
@@ -139,90 +453,114 @@
         .form-label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
         .form-label .required { color: var(--error); }
         .form-input, .form-select, .form-textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--surface); }
-        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,35,126,0.1); }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        
-        /* Message Template Tabs */
-        .template-tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
-        .template-tab { padding: 10px 20px; background: none; border: none; cursor: pointer; font-weight: 500; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: all 0.15s; }
-        .template-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-        .template-tab:hover { color: var(--primary); }
-        
-        /* Message Preview */
-        .message-preview { background: var(--bg); padding: 16px; border-radius: var(--radius); margin: 16px 0; border: 1px solid var(--border); }
-        .message-preview.urdu { font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; text-align: right; }
-        
-        /* Client Detail Card */
-        .client-detail-card { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 20px; border-radius: var(--radius); margin-bottom: 20px; }
-        .client-detail-card h3 { font-size: 24px; margin-bottom: 8px; }
-        .client-detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 16px; }
-        .detail-item { display: flex; flex-direction: column; }
-        .detail-label { font-size: 12px; opacity: 0.8; }
-        .detail-value { font-size: 16px; font-weight: 500; }
         
         /* Toast */
         .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: var(--surface); padding: 16px 20px; border-radius: 16px; box-shadow: var(--shadow-xl); display: flex; align-items: center; gap: 14px; min-width: 320px; border-left: 5px solid; animation: slideIn 0.3s; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(100px); } }
         .toast.success { border-left-color: var(--success); background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%); }
-        .toast.success i { color: var(--success); font-size: 24px; }
-        .toast.error { border-left-color: var(--error); background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%); }
-        .toast.error i { color: var(--error); font-size: 24px; }
-        .toast.warning { border-left-color: var(--warning); background: linear-gradient(135deg, #ffffff 0%, #fff8f0 100%); }
-        .toast.info { border-left-color: var(--info); background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%); }
-        .toast-content { flex: 1; }
-        .toast-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; color: var(--text); }
-        .toast-message { font-size: 13px; color: var(--text-secondary); }
-        .toast-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; border-radius: 6px; }
         
         /* Loading Overlay */
         .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); display: flex; justify-content: center; align-items: center; z-index: 3000; }
-        .spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Pending Popup */
-        .pending-popup { position: fixed; top: 80px; right: 20px; width: 380px; max-width: 90vw; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-xl); z-index: 1500; border-left: 5px solid var(--warning); overflow: hidden; }
-        .pending-popup-header { padding: 16px; background: linear-gradient(135deg, var(--warning), #ffb74d); color: white; display: flex; justify-content: space-between; align-items: center; }
-        .pending-popup-body { padding: 16px; max-height: 400px; overflow-y: auto; }
-        .pending-item { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
-        .pending-item:hover { background: var(--bg); }
-        
-        /* Action Buttons Row */
-        .action-row { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
-        
+        /* Responsive */
         @media (max-width: 768px) {
             .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 500; transform: translateX(-100%); }
             .sidebar.mobile-open { transform: translateX(0); }
             .mobile-menu-toggle { display: block; }
             .search-container { display: none; }
-            .quick-actions .btn span { display: none; }
-            .pending-popup { top: 10px; right: 10px; left: 10px; width: auto; }
-            .client-detail-grid { grid-template-columns: 1fr; }
+            .name-line1 { font-size: 32px; letter-spacing: 4px; }
+            .name-line2 { font-size: 16px; letter-spacing: 3px; }
         }
         
-        .add-client-link { color: var(--primary); cursor: pointer; font-size: 13px; margin-top: 4px; text-decoration: underline; }
+        .add-client-link { color: var(--accent-dark); cursor: pointer; font-size: 13px; margin-top: 4px; text-decoration: underline; font-weight: 500; }
         .filters-section { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
         .filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
         
-        /* Template Editor */
-        .template-editor { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-top: 16px; background: var(--bg); }
-        .template-variables { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-        .variable-tag { background: var(--primary); color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; cursor: pointer; }
-        .variable-tag:hover { background: var(--primary-light); }
+        /* Client Detail Card */
+        .client-detail-card { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 20px; border-radius: var(--radius); margin-bottom: 20px; }
+        .client-detail-card h3 { font-size: 24px; margin-bottom: 8px; color: var(--accent-light); }
+        .client-detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 16px; }
+        .detail-item { display: flex; flex-direction: column; }
+        .detail-label { font-size: 12px; opacity: 0.8; }
+        .detail-value { font-size: 16px; font-weight: 500; }
+        
+        /* Message Templates */
+        .template-tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .template-tab { padding: 10px 20px; background: none; border: none; cursor: pointer; font-weight: 500; color: var(--text-secondary); border-bottom: 2px solid transparent; }
+        .template-tab.active { color: var(--accent-dark); border-bottom-color: var(--accent); }
+        .message-preview { background: var(--bg); padding: 16px; border-radius: var(--radius); margin: 16px 0; border: 1px solid var(--border); white-space: pre-line; }
+        .message-preview.urdu { font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; text-align: right; }
+        .action-row { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+        .variable-tag { background: var(--accent); color: var(--primary-dark); padding: 4px 10px; border-radius: 20px; font-size: 12px; cursor: pointer; font-weight: 500; }
+        .variable-tag:hover { background: var(--accent-light); }
     </style>
 </head>
 <body>
-    <div class="loading-overlay" id="loadingOverlay">
+    <!-- Professional Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="corner-decoration corner-tl"></div>
+        <div class="corner-decoration corner-tr"></div>
+        <div class="corner-decoration corner-bl"></div>
+        <div class="corner-decoration corner-br"></div>
+        
+        <div class="splash-content">
+            <div class="logo-container">
+                <div class="glow-ring"></div>
+                <div class="glow-ring"></div>
+                <div class="glow-ring"></div>
+                
+                <div class="scales-logo">
+                    <div class="scales-base"></div>
+                    <div class="scales-pillar"></div>
+                    <div class="scales-beam">
+                        <div class="scales-pan-left">
+                            <div class="pan-circle"></div>
+                        </div>
+                        <div class="scales-pan-right">
+                            <div class="pan-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lawyer-name">
+                <div class="name-line1">MISS WAHIDA MALIK</div>
+                <div class="name-line2">Expert & Senior Lawyer</div>
+                <div class="title-line">Jandbar Association</div>
+            </div>
+            
+            <div class="loading-indicator">
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+                <div class="loading-text">
+                    Loading Legal Case Manager
+                    <i class="fas fa-circle"></i>
+                    <i class="fas fa-circle"></i>
+                    <i class="fas fa-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
         <div class="spinner"></div>
     </div>
 
-    <div class="app-container">
+    <!-- Main App Container -->
+    <div class="app-container" id="appContainer">
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="advocate-avatar"><i class="fas fa-gavel"></i></div>
                 <div class="advocate-details">
-                    <h3>Mian Shamas Abbas</h3>
-                    <span class="badge">High Court Advocate</span>
+                    <h3>Miss Wahida Malik</h3>
+                    <span class="badge">Expert & Senior Lawyer</span>
                 </div>
             </div>
             <ul class="nav-menu">
@@ -251,7 +589,7 @@
                         <input type="text" id="globalSearch" placeholder="Search cases, clients..." class="search-input">
                     </div>
                     <div class="quick-actions">
-                        <button class="btn btn-primary" id="quickAddCase"><i class="fas fa-plus"></i><span>New Case</span></button>
+                        <button class="btn btn-accent" id="quickAddCase"><i class="fas fa-plus"></i><span>New Case</span></button>
                         <button class="btn-icon" id="refreshData"><i class="fas fa-sync-alt"></i></button>
                         <button class="btn-icon" id="notificationBell"><i class="fas fa-bell"></i><span class="badge" id="headerNotificationBadge">0</span></button>
                     </div>
@@ -273,29 +611,27 @@
         <div class="modal-container" id="modalContainer"></div>
     </div>
     <div class="toast-container" id="toastContainer"></div>
-    <div class="pending-popup" id="pendingPopup" style="display:none;"></div>
 
     <script>
         // ========== CONFIGURATION ==========
-        const CURRENCY = { code: 'PKR', symbol: 'Rs.', name: 'Pakistani Rupee', format: (amt) => 'Rs. ' + (amt || 0).toLocaleString('en-PK') };
+        const CURRENCY = { code: 'PKR', symbol: 'Rs.', format: (amt) => 'Rs. ' + (amt || 0).toLocaleString('en-PK') };
         const FIREBASE_CONFIG = { apiKey: "AIzaSyB3F60BhQd1W2AzRfepKlULcJTEPlFvVGw", authDomain: "legal-case-management-pro.firebaseapp.com", projectId: "legal-case-management-pro", storageBucket: "legal-case-management-pro.firebasestorage.app", messagingSenderId: "1018024873539", appId: "1:1018024873539:web:f3661732b4ded21c90cef6" };
         const APP_CONFIG = { 
             appName: "Legal Case Manager Pro", 
-            advocate: { name: "MIAN SHAMAS ABBAS", title: "Most Experienced Advocate High Court", mobile: "xxxxd" }, 
+            advocate: { name: "MISS WAHIDA MALIK", title: "Expert & Senior Lawyer", association: "Jandbar Association", mobile: "xxxxd" }, 
             courts: ["Supreme Court of Pakistan","Lahore High Court","Islamabad High Court","Sindh High Court","Peshawar High Court","District & Sessions Court","Civil Court","Family Court","Consumer Court"], 
             caseStatuses: ["Active","Pending","Disposed","Adjourned","Reserved","Settled"], 
-            proceedingTypes: ["Hearing","Evidence","Arguments","Cross Examination","Filing"]
+            proceedingTypes: ["Hearing","Evidence","Arguments","Cross Examination","Filing","Judgment"]
         };
 
-        // Default Message Templates
         const MESSAGE_TEMPLATES = {
             english: {
-                hearing: `Dear {clientName},\n\nThis is to remind you about your court hearing scheduled as follows:\n\nCase No: {caseNumber}\nCourt: {courtName}\nDate: {hearingDate}\nTime: 09:00 AM\n\nPlease arrive at the court premises at least 30 minutes before the scheduled time with all relevant documents.\n\nRegards,\n{advocateName}\n{advocateTitle}`,
-                judgment: `Dear {clientName},\n\nJudgment in your case is scheduled as follows:\n\nCase No: {caseNumber}\nCourt: {courtName}\nDate: {hearingDate}\nTime: 09:00 AM\n\nYour presence is required at the court.\n\nRegards,\n{advocateName}\n{advocateTitle}`
+                hearing: `Dear {clientName},\n\nThis is to remind you about your court hearing scheduled as follows:\n\nCase No: {caseNumber}\nCourt: {courtName}\nDate: {hearingDate}\nTime: 09:00 AM\n\nPlease arrive at the court premises at least 30 minutes before the scheduled time with all relevant documents.\n\nRegards,\n{advocateName}\n{advocateTitle}\n{association}`,
+                judgment: `Dear {clientName},\n\nJudgment in your case is scheduled as follows:\n\nCase No: {caseNumber}\nCourt: {courtName}\nDate: {hearingDate}\nTime: 09:00 AM\n\nYour presence is required at the court.\n\nRegards,\n{advocateName}\n{advocateTitle}\n{association}`
             },
             urdu: {
-                hearing: `محترم {clientName} صاحب،\n\nآپ کے مقدمے کی سماعت کی تاریخ یاد دہانی:\n\nکیس نمبر: {caseNumber}\nعدالت: {courtName}\nتاریخ: {hearingDate}\nوقت: 09:00 بجے صبح\n\nبراہ کرم تمام ضروری دستاویزات کے ساتھ مقررہ وقت سے 30 منٹ پہلے عدالت پہنچیں۔\n\nشکریہ\n{advocateName}\n{advocateTitle}`,
-                judgment: `محترم {clientName} صاحب،\n\nآپ کے مقدمے کا فیصلہ درج ذیل تاریخ کو ہوگا:\n\nکیس نمبر: {caseNumber}\nعدالت: {courtName}\nتاریخ: {hearingDate}\nوقت: 09:00 بجے صبح\n\nعدالت میں آپ کی حاضری ضروری ہے۔\n\nشکریہ\n{advocateName}\n{advocateTitle}`
+                hearing: `محترم {clientName} صاحب،\n\nآپ کے مقدمے کی سماعت کی تاریخ یاد دہانی:\n\nکیس نمبر: {caseNumber}\nعدالت: {courtName}\nتاریخ: {hearingDate}\nوقت: 09:00 بجے صبح\n\nبراہ کرم تمام ضروری دستاویزات کے ساتھ مقررہ وقت سے 30 منٹ پہلے عدالت پہنچیں۔\n\nشکریہ\n{advocateName}\n{advocateTitle}\n{association}`,
+                judgment: `محترم {clientName} صاحب،\n\nآپ کے مقدمے کا فیصلہ درج ذیل تاریخ کو ہوگا:\n\nکیس نمبر: {caseNumber}\nعدالت: {courtName}\nتاریخ: {hearingDate}\nوقت: 09:00 بجے صبح\n\nعدالت میں آپ کی حاضری ضروری ہے۔\n\nشکریہ\n{advocateName}\n{advocateTitle}\n{association}`
             }
         };
 
@@ -370,52 +706,20 @@
                 this.modalC = document.getElementById('modalContainer');
                 this.toastC = document.getElementById('toastContainer');
                 this.loading = document.getElementById('loadingOverlay');
-                this.pendingPopup = document.getElementById('pendingPopup');
             }
-            
             showSuccess(message, title = 'Success!') {
                 const t = document.createElement('div'); t.className = 'toast success';
-                t.innerHTML = `<i class="fas fa-check-circle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+                t.innerHTML = `<i class="fas fa-check-circle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div>`;
                 this.toastC.appendChild(t); setTimeout(() => t.remove(), 4000);
             }
             showError(message, title = 'Error!') {
                 const t = document.createElement('div'); t.className = 'toast error';
-                t.innerHTML = `<i class="fas fa-exclamation-circle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+                t.innerHTML = `<i class="fas fa-exclamation-circle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div>`;
                 this.toastC.appendChild(t); setTimeout(() => t.remove(), 5000);
-            }
-            showWarning(message, title = 'Warning!') {
-                const t = document.createElement('div'); t.className = 'toast warning';
-                t.innerHTML = `<i class="fas fa-exclamation-triangle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
-                this.toastC.appendChild(t); setTimeout(() => t.remove(), 4000);
-            }
-            showInfo(message, title = 'Information') {
-                const t = document.createElement('div'); t.className = 'toast info';
-                t.innerHTML = `<i class="fas fa-info-circle"></i><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-message">${message}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
-                this.toastC.appendChild(t); setTimeout(() => t.remove(), 4000);
             }
             showLoading(s) { this.loading.style.display = s ? 'flex' : 'none'; }
             openModal(html) { this.modalC.innerHTML = html; this.modalO.classList.add('active'); }
-            closeModal() { this.modalO.classList.remove('active'); app.currentModalData = null; app.returnToCaseModal = false; }
-            
-            showPendingPopup(proceedings) {
-                if(proceedings.length === 0) { this.pendingPopup.style.display = 'none'; return; }
-                this.pendingPopup.innerHTML = `
-                    <div class="pending-popup-header">
-                        <span><i class="fas fa-exclamation-triangle"></i> Pending Proceedings (${proceedings.length})</span>
-                        <button style="background:none;border:none;color:white;cursor:pointer;" onclick="document.getElementById('pendingPopup').style.display='none'"><i class="fas fa-times"></i></button>
-                    </div>
-                    <div class="pending-popup-body">
-                        ${proceedings.map(p => `
-                            <div class="pending-item" onclick="app.showClientNotification('${p.caseId}')">
-                                <div class="pending-case">${p.caseNumber} - ${p.courtCategory}</div>
-                                <div class="pending-client">${p.clientName}</div>
-                                <div class="pending-date"><i class="fas fa-calendar"></i> Next: ${p.nextDate} | Type: ${p.proceedingType}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                this.pendingPopup.style.display = 'block';
-            }
+            closeModal() { this.modalO.classList.remove('active'); }
             
             renderDashboard() {
                 const stats = state.computed.statistics();
@@ -431,14 +735,14 @@
                         <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,var(--error),#ef5350);"><i class="fas fa-exclamation-circle"></i></div><div class="stat-value">${CURRENCY.format(stats.totalDue)}</div><div class="stat-label">Due</div></div>
                     </div>
                     <div class="data-table-container">
-                        <div class="table-header"><span class="table-title">Recent Cases</span><button class="btn btn-primary" onclick="app.showCaseModal()"><i class="fas fa-plus"></i> New</button></div>
+                        <div class="table-header"><span class="table-title">Recent Cases</span><button class="btn btn-accent" onclick="app.showCaseModal()"><i class="fas fa-plus"></i> New</button></div>
                         <table class="data-table"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Status</th><th></th></tr></thead>
-                        <tbody>${recent.map(c=>`<tr><td>${c.caseNumber||''}</td><td>${c.clientName||''}</td><td>${c.courtCategory||''}</td><td><span class="status-badge ${c.status?.toLowerCase()||'pending'}">${c.status||'Pending'}</span></td><td><div class="action-buttons"><button class="btn-table" onclick="app.editCase('${c.id}')"><i class="fas fa-edit"></i></button></div></td></tr>`).join('') || '<tr><td colspan="5" style="text-align:center;">No cases yet</td></tr>'}</tbody></table>
+                        <tbody>${recent.map(c=>`<tr><td>${c.caseNumber||''}</td><td>${c.clientName||''}</td><td>${c.courtCategory||''}</td><td><span class="status-badge ${c.status?.toLowerCase()||'pending'}">${c.status||'Pending'}</span></td><td><div class="action-buttons"><button class="btn-table" onclick="app.editCase('${c.id}')"><i class="fas fa-edit"></i></button></div></td></tr>`).join('') || '<tr><td colspan="5">No cases yet</td></tr>'}</tbody></table>
                     </div>
                     <div class="data-table-container">
                         <div class="table-header"><span class="table-title">Tomorrow's Proceedings (${upcoming.length})</span></div>
                         <table class="data-table"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Next Date</th></tr></thead>
-                        <tbody>${upcoming.map(p=>`<tr><td>${p.caseNumber||''}</td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.nextDate||''}</td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center;">No proceedings tomorrow</td></tr>'}</tbody></table>
+                        <tbody>${upcoming.map(p=>`<tr><td>${p.caseNumber||''}</td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.nextDate||''}</td></tr>`).join('') || '<tr><td colspan="4">No proceedings tomorrow</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
@@ -452,12 +756,12 @@
                     <div class="filters-section">
                         <select class="filter-select" id="courtFilter"><option value="all">All Courts</option>${courts.map(c=>`<option value="${c}" ${filters.courtFilter===c?'selected':''}>${c}</option>`).join('')}</select>
                         <select class="filter-select" id="statusFilter"><option value="all">All Status</option>${statuses.map(s=>`<option value="${s}" ${filters.statusFilter===s?'selected':''}>${s}</option>`).join('')}</select>
-                        <button class="btn btn-primary" onclick="app.showCaseModal()"><i class="fas fa-plus"></i> New Case</button>
+                        <button class="btn btn-accent" onclick="app.showCaseModal()"><i class="fas fa-plus"></i> New Case</button>
                         <span style="margin-left:auto;">Total: ${filtered.length}</span>
                     </div>
                     <div class="data-table-container">
                         <table class="data-table"><thead><tr><th>Case No.</th><th>Title</th><th>Client</th><th>Court</th><th>Filing Date</th><th>Fees</th><th>Status</th><th></th></tr></thead>
-                        <tbody>${filtered.map(c=>`<tr><td>${c.caseNumber||''}</td><td>${c.caseTitle||''}</td><td>${c.clientName||''}</td><td>${c.courtCategory||''}</td><td>${c.filingDate||''}</td><td>${CURRENCY.format(c.totalFees)}</td><td><span class="status-badge ${c.status?.toLowerCase()||'pending'}">${c.status||'Pending'}</span></td><td><div class="action-buttons"><button class="btn-table" onclick="app.editCase('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-table delete" onclick="app.deleteCase('${c.id}')"><i class="fas fa-trash"></i></button><button class="btn-table" onclick="app.showBillingModal('${c.id}')"><i class="fas fa-rupee-sign"></i></button><button class="btn-table" onclick="app.addProceeding('${c.id}')"><i class="fas fa-calendar-plus"></i></button></div></td></tr>`).join('') || '<tr><td colspan="8" style="text-align:center;">No cases found</td></tr>'}</tbody></table>
+                        <tbody>${filtered.map(c=>`<tr><td>${c.caseNumber||''}</td><td>${c.caseTitle||''}</td><td>${c.clientName||''}</td><td>${c.courtCategory||''}</td><td>${c.filingDate||''}</td><td>${CURRENCY.format(c.totalFees)}</td><td><span class="status-badge ${c.status?.toLowerCase()||'pending'}">${c.status||'Pending'}</span></td><td><div class="action-buttons"><button class="btn-table" onclick="app.editCase('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-table delete" onclick="app.deleteCase('${c.id}')"><i class="fas fa-trash"></i></button><button class="btn-table" onclick="app.showBillingModal('${c.id}')"><i class="fas fa-rupee-sign"></i></button><button class="btn-table" onclick="app.addProceeding('${c.id}')"><i class="fas fa-calendar-plus"></i></button></div></td></tr>`).join('') || '<tr><td colspan="8">No cases found</td></tr>'}</tbody></table>
                     </div>
                 `;
                 document.getElementById('courtFilter').onchange = (e) => state.setState({filters: {...filters, courtFilter: e.target.value}});
@@ -468,10 +772,10 @@
                 const clients = state.getState('clients');
                 const cases = state.getState('cases');
                 document.getElementById('clientsView').innerHTML = `
-                    <div class="filters-section"><button class="btn btn-primary" onclick="app.showClientModal()"><i class="fas fa-user-plus"></i> New Client</button></div>
+                    <div class="filters-section"><button class="btn btn-accent" onclick="app.showClientModal()"><i class="fas fa-user-plus"></i> New Client</button></div>
                     <div class="data-table-container">
                         <table class="data-table"><thead><tr><th>Name</th><th>Mobile</th><th>Email</th><th>Address</th><th>Cases</th><th></th></tr></thead>
-                        <tbody>${clients.map(c=>{ const cc = cases.filter(cs=>cs.clientId===c.id).length; return `<tr><td>${c.fullName||''}</td><td>${c.mobile||''}</td><td>${c.email||''}</td><td>${c.address||''}</td><td>${cc}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.editClient('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-table delete" onclick="app.deleteClient('${c.id}')"><i class="fas fa-trash"></i></button></div></td></tr>`; }).join('') || '<tr><td colspan="6" style="text-align:center;">No clients yet</td></tr>'}</tbody></table>
+                        <tbody>${clients.map(c=>{ const cc = cases.filter(cs=>cs.clientId===c.id).length; return `<tr><td>${c.fullName||''}</td><td>${c.mobile||''}</td><td>${c.email||''}</td><td>${c.address||''}</td><td>${cc}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.editClient('${c.id}')"><i class="fas fa-edit"></i></button><button class="btn-table delete" onclick="app.deleteClient('${c.id}')"><i class="fas fa-trash"></i></button></div></td></tr>`; }).join('') || '<tr><td colspan="6">No clients yet</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
@@ -486,10 +790,10 @@
                         <div class="stat-card"><div class="stat-value">${CURRENCY.format(stats.totalPaid)}</div><div class="stat-label">Received</div></div>
                         <div class="stat-card"><div class="stat-value">${CURRENCY.format(stats.totalDue)}</div><div class="stat-label">Due</div></div>
                     </div>
-                    <div class="filters-section"><button class="btn btn-primary" onclick="app.showBillingModal()"><i class="fas fa-plus"></i> Record Payment</button></div>
+                    <div class="filters-section"><button class="btn btn-accent" onclick="app.showBillingModal()"><i class="fas fa-plus"></i> Record Payment</button></div>
                     <div class="data-table-container">
                         <table class="data-table"><thead><tr><th>Invoice #</th><th>Case</th><th>Client</th><th>Amount</th><th>Method</th><th>Date/Time</th><th></th></tr></thead>
-                        <tbody>${billings.map(b=>{ const c = cases.find(cs=>cs.id===b.caseId); const dt = b.createdAt?.toDate?.() || new Date(); return `<tr><td>${b.invoiceNumber||''}</td><td>${c?.caseNumber||''}</td><td>${c?.clientName||''}</td><td>${CURRENCY.format(b.amount)}</td><td>${b.paymentMethod||''}</td><td>${b.paymentDate} ${dt.toLocaleTimeString?.() || ''}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.generateInvoice('${b.id}')"><i class="fas fa-file-pdf"></i></button><button class="btn-table" onclick="app.shareViaWhatsApp('${b.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-table delete" onclick="app.deleteBilling('${b.id}')"><i class="fas fa-trash"></i></button></div></td></tr>`; }).join('') || '<tr><td colspan="7" style="text-align:center;">No payments recorded</td></tr>'}</tbody></table>
+                        <tbody>${billings.map(b=>{ const c = cases.find(cs=>cs.id===b.caseId); const dt = b.createdAt?.toDate?.() || new Date(); return `<tr><td>${b.invoiceNumber||''}</td><td>${c?.caseNumber||''}</td><td>${c?.clientName||''}</td><td>${CURRENCY.format(b.amount)}</td><td>${b.paymentMethod||''}</td><td>${b.paymentDate} ${dt.toLocaleTimeString?.() || ''}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.generateInvoice('${b.id}')"><i class="fas fa-file-pdf"></i></button><button class="btn-table" onclick="app.shareViaWhatsApp('${b.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-table delete" onclick="app.deleteBilling('${b.id}')"><i class="fas fa-trash"></i></button></div></td></tr>`; }).join('') || '<tr><td colspan="7">No payments recorded</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
@@ -498,19 +802,18 @@
                 const proceedings = state.getState('proceedings');
                 document.getElementById('proceedingsView').innerHTML = `
                     <div class="filters-section">
-                        <button class="btn btn-primary" onclick="app.navigateTo('cases')"><i class="fas fa-plus"></i> Add Proceeding from Cases</button>
+                        <button class="btn btn-accent" onclick="app.navigateTo('cases')"><i class="fas fa-plus"></i> Add Proceeding from Cases</button>
                         <span style="margin-left:auto;">Total: ${proceedings.length}</span>
                     </div>
                     <div class="data-table-container">
                         <table class="data-table"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Proceeding Date</th><th>Type</th><th>Next Date</th><th>Outcome</th><th></th></tr></thead>
-                        <tbody>${proceedings.map(p=>`<tr><td><strong>${p.caseNumber||''}</strong></td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.proceedingDate||''}</td><td>${p.proceedingType||''}</td><td style="color:var(--primary);font-weight:600;">${p.nextDate||''}</td><td>${p.outcome||'Pending'}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.showClientNotification('${p.caseId}')"><i class="fas fa-bell"></i></button></div></td></tr>`).join('') || '<tr><td colspan="8" style="text-align:center;">No proceedings recorded</td></tr>'}</tbody></table>
+                        <tbody>${proceedings.map(p=>`<tr><td><strong>${p.caseNumber||''}</strong></td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.proceedingDate||''}</td><td>${p.proceedingType||''}</td><td style="color:var(--accent-dark);font-weight:600;">${p.nextDate||''}</td><td>${p.outcome||'Pending'}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.showClientNotification('${p.caseId}')"><i class="fas fa-bell"></i></button></div></td></tr>`).join('') || '<tr><td colspan="8">No proceedings recorded</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
             
             renderNotifications() {
                 const upcoming = state.computed.upcomingProceedings(1);
-                const dayAfter = state.computed.upcomingProceedings(2);
                 document.getElementById('notificationsView').innerHTML = `
                     <div class="data-table-container">
                         <div class="table-header">
@@ -535,7 +838,7 @@
                                         <td>${p.nextDate||''}</td>
                                         <td>${p.proceedingType||''}</td>
                                     </tr>`;
-                                }).join('') || '<tr><td colspan="6" style="text-align:center;">No proceedings scheduled</td></tr>'}
+                                }).join('') || '<tr><td colspan="6">No proceedings scheduled</td></tr>'}
                             </tbody>
                         </table>
                     </div>
@@ -563,13 +866,18 @@
         class LegalCaseManager {
             constructor() {
                 this.ui = new UIController();
-                this.currentModalData = null;
                 this.isSaving = false;
                 this.returnToCaseModal = false;
                 this.currentMessageTemplate = { english: '', urdu: '' };
             }
             
             async initialize() {
+                // Hide splash screen after animation
+                setTimeout(() => {
+                    document.getElementById('splashScreen').style.display = 'none';
+                    document.getElementById('appContainer').classList.add('visible');
+                }, 2500);
+                
                 this.ui.showLoading(true);
                 try {
                     await fb.init();
@@ -584,7 +892,6 @@
                 } catch(e) {
                     console.error('Init error:', e);
                     this.navigateTo('dashboard');
-                    this.ui.showWarning('Working in offline mode', 'Limited functionality');
                 } finally {
                     this.ui.showLoading(false);
                 }
@@ -691,7 +998,6 @@
                 const today = new Date().toISOString().split('T')[0];
                 const pending = state.getState('proceedings').filter(p => p.nextDate <= today && !p.notified);
                 state.setState({pendingProceedings: pending});
-                this.ui.showPendingPopup(pending);
                 this.ui.updateBadges();
             }
             
@@ -714,7 +1020,7 @@
                             <td>${p.nextDate||''}</td>
                             <td>${p.proceedingType||''}</td>
                         </tr>`;
-                    }).join('') || '<tr><td colspan="6" style="text-align:center;">No proceedings</td></tr>';
+                    }).join('') || '<tr><td colspan="6">No proceedings</td></tr>';
                 }
             }
             
@@ -729,21 +1035,20 @@
                 const templates = state.getState('messageTemplates');
                 const defaultMsgType = latestProceeding.proceedingType === 'Judgment' ? 'judgment' : 'hearing';
                 
-                // Generate formatted messages
                 const variables = {
                     clientName: clientData?.fullName || 'Client',
                     caseNumber: caseData.caseNumber || 'N/A',
                     courtName: caseData.courtCategory || 'Court',
                     hearingDate: latestProceeding.nextDate || caseData.nextDate || 'N/A',
                     advocateName: APP_CONFIG.advocate.name,
-                    advocateTitle: APP_CONFIG.advocate.title
+                    advocateTitle: APP_CONFIG.advocate.title,
+                    association: APP_CONFIG.advocate.association
                 };
                 
                 const englishMsg = this.formatMessage(templates.english[defaultMsgType] || templates.english.hearing, variables);
                 const urduMsg = this.formatMessage(templates.urdu[defaultMsgType] || templates.urdu.hearing, variables);
                 
                 this.currentMessageTemplate = { english: englishMsg, urdu: urduMsg };
-                this.currentNotificationData = { caseData, clientData, latestProceeding };
                 
                 this.ui.openModal(`
                     <div class="modal-header">
@@ -751,7 +1056,6 @@
                         <button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button>
                     </div>
                     <div class="modal-body">
-                        <!-- Client Details Card -->
                         <div class="client-detail-card">
                             <h3>${clientData?.fullName || 'N/A'}</h3>
                             <div class="client-detail-grid">
@@ -764,47 +1068,30 @@
                             </div>
                         </div>
                         
-                        <!-- Message Tabs -->
                         <div class="template-tabs">
                             <button class="template-tab active" onclick="app.switchMessageTab('english')">English Message</button>
                             <button class="template-tab" onclick="app.switchMessageTab('urdu')">اردو پیغام</button>
                         </div>
                         
-                        <!-- Message Preview -->
                         <div id="messagePreviewEnglish" class="message-preview" style="white-space: pre-line;">${englishMsg}</div>
                         <div id="messagePreviewUrdu" class="message-preview urdu" style="white-space: pre-line; display: none;">${urduMsg}</div>
                         
-                        <!-- Action Buttons -->
                         <div class="action-row">
-                            <button class="btn btn-success" onclick="app.sendViaWhatsApp()">
-                                <i class="fab fa-whatsapp"></i> Send via WhatsApp
-                            </button>
-                            <button class="btn btn-primary" onclick="app.sendViaSMS()">
-                                <i class="fas fa-sms"></i> Send via SMS
-                            </button>
-                            <button class="btn btn-secondary" onclick="app.copyMessageToClipboard()">
-                                <i class="fas fa-copy"></i> Copy Message
-                            </button>
+                            <button class="btn btn-success" onclick="app.sendViaWhatsApp()"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                            <button class="btn btn-primary" onclick="app.sendViaSMS()"><i class="fas fa-sms"></i> SMS</button>
+                            <button class="btn btn-secondary" onclick="app.copyMessageToClipboard()"><i class="fas fa-copy"></i> Copy</button>
                         </div>
                         
-                        <!-- Mark as Notified -->
                         <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
-                            <button class="btn btn-warning" onclick="app.markAsNotified('${latestProceeding.id || caseId}')">
-                                <i class="fas fa-check-double"></i> Mark as Notified / Disposed
-                            </button>
+                            <button class="btn btn-warning" onclick="app.markAsNotified('${latestProceeding.id || caseId}')"><i class="fas fa-check-double"></i> Mark as Notified</button>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" onclick="app.ui.closeModal()">Close</button>
                     </div>
                 `);
             }
             
             formatMessage(template, variables) {
                 let msg = template;
-                Object.keys(variables).forEach(key => {
-                    msg = msg.replace(new RegExp(`{${key}}`, 'g'), variables[key]);
-                });
+                Object.keys(variables).forEach(key => { msg = msg.replace(new RegExp(`{${key}}`, 'g'), variables[key]); });
                 return msg;
             }
             
@@ -816,42 +1103,27 @@
             }
             
             sendViaWhatsApp() {
-                const msg = document.getElementById('messagePreviewEnglish').style.display === 'none' 
-                    ? this.currentMessageTemplate.urdu 
-                    : this.currentMessageTemplate.english;
+                const msg = document.getElementById('messagePreviewEnglish').style.display === 'none' ? this.currentMessageTemplate.urdu : this.currentMessageTemplate.english;
                 window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-                this.ui.showSuccess('Opening WhatsApp with formatted message', 'WhatsApp');
+                this.ui.showSuccess('Opening WhatsApp', 'WhatsApp');
             }
             
             sendViaSMS() {
-                const client = this.currentNotificationData?.clientData;
-                const msg = document.getElementById('messagePreviewEnglish').style.display === 'none' 
-                    ? this.currentMessageTemplate.urdu 
-                    : this.currentMessageTemplate.english;
-                if(client?.mobile) {
-                    window.open(`sms:${client.mobile}?body=${encodeURIComponent(msg)}`, '_blank');
-                    this.ui.showSuccess('Opening SMS app', 'SMS');
-                } else {
-                    this.ui.showError('No mobile number available', 'SMS Failed');
-                }
+                const msg = document.getElementById('messagePreviewEnglish').style.display === 'none' ? this.currentMessageTemplate.urdu : this.currentMessageTemplate.english;
+                window.open(`sms:?body=${encodeURIComponent(msg)}`, '_blank');
+                this.ui.showSuccess('Opening SMS app', 'SMS');
             }
             
             copyMessageToClipboard() {
-                const msg = document.getElementById('messagePreviewEnglish').style.display === 'none' 
-                    ? this.currentMessageTemplate.urdu 
-                    : this.currentMessageTemplate.english;
-                navigator.clipboard?.writeText(msg).then(() => {
-                    this.ui.showSuccess('Message copied to clipboard', 'Copied');
-                }).catch(() => {
-                    this.ui.showError('Failed to copy message', 'Error');
-                });
+                const msg = document.getElementById('messagePreviewEnglish').style.display === 'none' ? this.currentMessageTemplate.urdu : this.currentMessageTemplate.english;
+                navigator.clipboard?.writeText(msg).then(() => this.ui.showSuccess('Copied to clipboard', 'Success'));
             }
             
             async markAsNotified(proceedingId) {
                 if(proceedingId && proceedingId !== 'undefined') {
                     await fb.update('proceedings', proceedingId, { notified: true });
                 }
-                this.ui.showSuccess('Client marked as notified', 'Updated');
+                this.ui.showSuccess('Marked as notified', 'Updated');
                 this.ui.closeModal();
                 this.checkPendingProceedings();
                 await this.loadData();
@@ -860,105 +1132,42 @@
             openTemplateEditor() {
                 const templates = state.getState('messageTemplates');
                 this.ui.openModal(`
-                    <div class="modal-header">
-                        <h3 class="modal-title">Edit Message Templates</h3>
-                        <button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button>
-                    </div>
+                    <div class="modal-header"><h3>Edit Templates</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
                     <div class="modal-body">
-                        <div class="template-variables">
+                        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
                             <span class="variable-tag" onclick="app.insertVariable('{clientName}')">{clientName}</span>
                             <span class="variable-tag" onclick="app.insertVariable('{caseNumber}')">{caseNumber}</span>
                             <span class="variable-tag" onclick="app.insertVariable('{courtName}')">{courtName}</span>
                             <span class="variable-tag" onclick="app.insertVariable('{hearingDate}')">{hearingDate}</span>
-                            <span class="variable-tag" onclick="app.insertVariable('{advocateName}')">{advocateName}</span>
-                            <span class="variable-tag" onclick="app.insertVariable('{advocateTitle}')">{advocateTitle}</span>
                         </div>
-                        
-                        <div class="template-tabs">
-                            <button class="template-tab active" onclick="app.switchEditorTab('english')">English Templates</button>
-                            <button class="template-tab" onclick="app.switchEditorTab('urdu')">Urdu Templates</button>
-                        </div>
-                        
-                        <div id="editorEnglish">
-                            <div class="form-group">
-                                <label>Hearing Reminder Template</label>
-                                <textarea class="form-textarea" id="englishHearing" rows="6">${templates.english.hearing}</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Judgment Template</label>
-                                <textarea class="form-textarea" id="englishJudgment" rows="6">${templates.english.judgment}</textarea>
-                            </div>
-                        </div>
-                        
-                        <div id="editorUrdu" style="display:none;">
-                            <div class="form-group">
-                                <label>Hearing Reminder Template (Urdu)</label>
-                                <textarea class="form-textarea urdu-text" id="urduHearing" rows="6" dir="rtl">${templates.urdu.hearing}</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Judgment Template (Urdu)</label>
-                                <textarea class="form-textarea urdu-text" id="urduJudgment" rows="6" dir="rtl">${templates.urdu.judgment}</textarea>
-                            </div>
-                        </div>
+                        <div class="form-group"><label>English - Hearing</label><textarea class="form-textarea" id="englishHearing" rows="4">${templates.english.hearing}</textarea></div>
+                        <div class="form-group"><label>English - Judgment</label><textarea class="form-textarea" id="englishJudgment" rows="4">${templates.english.judgment}</textarea></div>
+                        <div class="form-group"><label>Urdu - Hearing</label><textarea class="form-textarea urdu-text" id="urduHearing" rows="4" dir="rtl">${templates.urdu.hearing}</textarea></div>
+                        <div class="form-group"><label>Urdu - Judgment</label><textarea class="form-textarea urdu-text" id="urduJudgment" rows="4" dir="rtl">${templates.urdu.judgment}</textarea></div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" onclick="app.resetTemplates()">Reset to Default</button>
-                        <button class="btn btn-primary" onclick="app.saveTemplates()">Save Templates</button>
+                        <button class="btn btn-secondary" onclick="app.resetTemplates()">Reset</button>
+                        <button class="btn btn-accent" onclick="app.saveTemplates()">Save</button>
                     </div>
                 `);
-                this.currentEditorTab = 'english';
-            }
-            
-            switchEditorTab(lang) {
-                document.querySelectorAll('#editorEnglish, #editorUrdu').forEach(el => el.style.display = 'none');
-                document.getElementById(`editor${lang.charAt(0).toUpperCase() + lang.slice(1)}`).style.display = 'block';
-                document.querySelectorAll('.template-tab').forEach(t => t.classList.remove('active'));
-                event.target.classList.add('active');
-                this.currentEditorTab = lang;
-            }
-            
-            insertVariable(variable) {
-                const activeEditor = document.querySelector(`#editor${this.currentEditorTab.charAt(0).toUpperCase() + this.currentEditorTab.slice(1)}`);
-                const textarea = activeEditor?.querySelector('textarea:focus');
-                if(textarea) {
-                    const start = textarea.selectionStart;
-                    const end = textarea.selectionEnd;
-                    const text = textarea.value;
-                    textarea.value = text.substring(0, start) + variable + text.substring(end);
-                    textarea.focus();
-                    textarea.setSelectionRange(start + variable.length, start + variable.length);
-                }
             }
             
             saveTemplates() {
                 const templates = {
-                    english: {
-                        hearing: document.getElementById('englishHearing')?.value || MESSAGE_TEMPLATES.english.hearing,
-                        judgment: document.getElementById('englishJudgment')?.value || MESSAGE_TEMPLATES.english.judgment
-                    },
-                    urdu: {
-                        hearing: document.getElementById('urduHearing')?.value || MESSAGE_TEMPLATES.urdu.hearing,
-                        judgment: document.getElementById('urduJudgment')?.value || MESSAGE_TEMPLATES.urdu.judgment
-                    }
+                    english: { hearing: document.getElementById('englishHearing')?.value || MESSAGE_TEMPLATES.english.hearing, judgment: document.getElementById('englishJudgment')?.value || MESSAGE_TEMPLATES.english.judgment },
+                    urdu: { hearing: document.getElementById('urduHearing')?.value || MESSAGE_TEMPLATES.urdu.hearing, judgment: document.getElementById('urduJudgment')?.value || MESSAGE_TEMPLATES.urdu.judgment }
                 };
                 state.setState({ messageTemplates: templates });
-                this.ui.showSuccess('Message templates saved successfully', 'Templates Updated');
+                this.ui.showSuccess('Templates saved', 'Success');
                 this.ui.closeModal();
             }
             
             resetTemplates() {
-                if(confirm('Reset all templates to default?')) {
-                    state.setState({ messageTemplates: MESSAGE_TEMPLATES });
-                    this.ui.showSuccess('Templates reset to default', 'Reset Complete');
-                    this.ui.closeModal();
-                    this.openTemplateEditor();
-                }
+                if(confirm('Reset to default?')) { state.setState({ messageTemplates: MESSAGE_TEMPLATES }); this.ui.showSuccess('Reset complete', 'Success'); this.ui.closeModal(); }
             }
             
-            // Other existing methods (showCaseModal, saveCase, etc.) remain the same...
             showCaseModal(caseData = null) {
                 const clients = state.getState('clients');
-                this.currentModalData = caseData;
                 this.ui.openModal(`
                     <div class="modal-header"><h3>${caseData ? 'Edit Case' : 'New Case'}</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
                     <div class="modal-body">
@@ -970,7 +1179,7 @@
                         <div class="form-row"><div class="form-group"><label>Status</label><select class="form-select" id="status">${APP_CONFIG.caseStatuses.map(s=>`<option ${caseData?.status===s?'selected':(s==='Active'&&!caseData?'selected':'')}>${s}</option>`).join('')}</select></div><div class="form-group"><label>Next Hearing</label><input type="date" class="form-input" id="nextDate" value="${caseData?.nextDate||''}"></div></div>
                         <div class="form-group"><label>Description</label><textarea class="form-textarea" id="description">${caseData?.description||''}</textarea></div>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.saveCase('${caseData?.id||''}')">${caseData?'Update':'Save'}</button></div>
+                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-accent" onclick="app.saveCase('${caseData?.id||''}')">${caseData?'Update':'Save'}</button></div>
                 `);
             }
             
@@ -979,7 +1188,6 @@
             async saveCase(id) {
                 if(this.isSaving) return;
                 this.isSaving = true;
-                const btn = event.target; btn.disabled = true;
                 try {
                     const caseNumber = document.getElementById('caseNumber').value.trim();
                     if(!caseNumber) throw new Error('Case number required');
@@ -992,7 +1200,7 @@
                     this.ui.showSuccess(`Case ${caseNumber} ${id?'updated':'registered'}`, 'Success');
                     await this.loadData();
                     this.ui.closeModal();
-                } catch(e) { this.ui.showError(e.message, 'Error'); btn.disabled = false; } 
+                } catch(e) { this.ui.showError(e.message, 'Error'); } 
                 finally { this.isSaving = false; }
             }
             
@@ -1007,14 +1215,13 @@
                         <div class="form-row"><div class="form-group"><label>Mobile <span class="required">*</span></label><input class="form-input" id="mobile" value="${clientData?.mobile||''}" required></div><div class="form-group"><label>Email</label><input type="email" class="form-input" id="email" value="${clientData?.email||''}"></div></div>
                         <div class="form-group"><label>Address</label><textarea class="form-textarea" id="address">${clientData?.address||''}</textarea></div>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.saveClient('${clientData?.id||''}')">${clientData?'Update':'Save'}</button></div>
+                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-accent" onclick="app.saveClient('${clientData?.id||''}')">${clientData?'Update':'Save'}</button></div>
                 `);
             }
             
             async saveClient(id) {
                 if(this.isSaving) return;
                 this.isSaving = true;
-                const btn = event.target; btn.disabled = true;
                 try {
                     const fullName = document.getElementById('fullName').value.trim();
                     const mobile = document.getElementById('mobile').value.trim();
@@ -1026,7 +1233,7 @@
                     await this.loadData();
                     this.ui.closeModal();
                     if(this.returnToCaseModal) { this.returnToCaseModal = false; setTimeout(() => this.showCaseModal(), 100); }
-                } catch(e) { this.ui.showError(e.message, 'Error'); btn.disabled = false; } 
+                } catch(e) { this.ui.showError(e.message, 'Error'); } 
                 finally { this.isSaving = false; }
             }
             
@@ -1035,17 +1242,16 @@
             
             showBillingModal(caseId = null) {
                 const cases = state.getState('cases').filter(c=>(c.totalFees||0)>0);
-                if(!cases.length) { this.ui.showWarning('No cases with fees', 'No Cases'); return; }
+                if(!cases.length) { this.ui.showError('No cases with fees', 'Error'); return; }
                 this.ui.openModal(`
                     <div class="modal-header"><h3>Record Payment</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
                     <div class="modal-body">
-                        <div class="form-group"><label>Select Case</label><select class="form-select" id="billingCaseId" required onchange="app.updateDueDisplay()"><option value="">Select</option>${cases.map(c=>{ const paid=state.getState('billings').filter(b=>b.caseId===c.id).reduce((s,b)=>s+b.amount,0); const due = c.totalFees - paid; return `<option value="${c.id}" data-due="${due}" ${caseId===c.id?'selected':''}>${c.caseNumber} - ${c.clientName}</option>`; }).join('')}</select></div>
-                        <div class="due-amount-display" id="dueAmountDisplay">Select a case to see due amount</div>
+                        <div class="form-group"><label>Select Case</label><select class="form-select" id="billingCaseId" required onchange="app.updateDueDisplay()"><option value="">Select</option>${cases.map(c=>{ const paid=state.getState('billings').filter(b=>b.caseId===c.id).reduce((s,b)=>s+b.amount,0); return `<option value="${c.id}" data-due="${c.totalFees-paid}" ${caseId===c.id?'selected':''}>${c.caseNumber} - ${c.clientName}</option>`; }).join('')}</select></div>
+                        <div id="dueAmountDisplay" style="padding:10px;background:var(--bg);border-radius:8px;margin-bottom:16px;">Select a case</div>
                         <div class="form-row"><div class="form-group"><label>Amount (Rs.)</label><input type="number" class="form-input" id="paymentAmount" min="1" required></div><div class="form-group"><label>Method</label><select class="form-select" id="paymentMethod"><option>Cash</option><option>Bank Transfer</option><option>JazzCash/EasyPaisa</option></select></div></div>
                         <div class="form-group"><label>Date</label><input type="date" class="form-input" id="paymentDate" value="${new Date().toISOString().split('T')[0]}"></div>
-                        <div class="form-group"><label>Description</label><textarea class="form-textarea" id="paymentDescription"></textarea></div>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.saveBilling()">Record Payment</button></div>
+                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-accent" onclick="app.saveBilling()">Record</button></div>
                 `);
                 setTimeout(() => this.updateDueDisplay(), 100);
             }
@@ -1056,7 +1262,7 @@
                 if(select && display) {
                     const opt = select.options[select.selectedIndex];
                     const due = parseFloat(opt?.dataset?.due) || 0;
-                    display.innerHTML = `<i class="fas fa-info-circle"></i> <strong>Due Amount: ${CURRENCY.format(due)}</strong>`;
+                    display.innerHTML = `<i class="fas fa-info-circle"></i> <strong>Due: ${CURRENCY.format(due)}</strong>`;
                 }
             }
             
@@ -1067,9 +1273,9 @@
                 const opt = document.getElementById('billingCaseId').options[document.getElementById('billingCaseId').selectedIndex];
                 const due = parseFloat(opt?.dataset?.due) || 0;
                 if(amount > due) return this.ui.showError(`Amount exceeds due (${CURRENCY.format(due)})`, 'Error');
-                const data = { caseId, amount, paymentMethod: document.getElementById('paymentMethod').value, paymentDate: document.getElementById('paymentDate').value, description: document.getElementById('paymentDescription').value, invoiceNumber: 'INV-'+Date.now().toString().slice(-8) };
+                const data = { caseId, amount, paymentMethod: document.getElementById('paymentMethod').value, paymentDate: document.getElementById('paymentDate').value, invoiceNumber: 'INV-'+Date.now().toString().slice(-8) };
                 const res = await fb.create('billings', data);
-                this.ui.showSuccess(`Payment of ${CURRENCY.format(amount)} recorded`, 'Success');
+                this.ui.showSuccess(`Payment recorded`, 'Success');
                 this.ui.closeModal();
                 this.generateInvoice(res.id);
             }
@@ -1084,24 +1290,22 @@
                     const cl = state.getState('clients').find(x=>x.id===b.clientId);
                     const paid = state.getState('billings').filter(x=>x.caseId===b.caseId).reduce((s,x)=>s+x.amount,0);
                     const due = (c?.totalFees||0) - paid;
-                    const now = new Date();
                     doc.setFontSize(20); doc.setTextColor(26,35,126); doc.text('INVOICE',105,20,{align:'center'});
-                    doc.setFontSize(10); doc.text(`Invoice #: ${b.invoiceNumber}`,20,40); doc.text(`Date: ${b.paymentDate} ${now.toLocaleTimeString()}`,20,48);
+                    doc.setFontSize(10); doc.text(`Invoice #: ${b.invoiceNumber}`,20,40); doc.text(`Date: ${b.paymentDate}`,20,48);
                     doc.text(`Advocate: ${APP_CONFIG.advocate.name}`,20,65); doc.text(`Client: ${cl?.fullName||''}`,120,65);
                     doc.autoTable({ startY:80, head:[['Description','Amount (PKR)']], body:[['Total Fees',CURRENCY.format(c?.totalFees||0)],['This Payment',CURRENCY.format(b.amount)],['Total Paid',CURRENCY.format(paid)],['Balance Due',CURRENCY.format(due)]], theme:'grid', headStyles:{fillColor:[26,35,126]} });
                     doc.save(`Invoice_${b.invoiceNumber}.pdf`);
-                } catch(e) { this.ui.showError('PDF failed', 'Error'); }
+                } catch(e) {}
             }
             
             shareViaWhatsApp(billingId) {
                 const b = state.getState('billings').find(x=>x.id===billingId);
                 if(!b) return;
                 const c = state.getState('cases').find(x=>x.id===b.caseId);
-                const msg = `*Payment Receipt*\nInvoice: ${b.invoiceNumber}\nAmount: ${CURRENCY.format(b.amount)}\nCase: ${c?.caseNumber||''}\nThank you!`;
-                window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+                window.open(`https://wa.me/?text=${encodeURIComponent(`*Payment Receipt*\nInvoice: ${b.invoiceNumber}\nAmount: ${CURRENCY.format(b.amount)}\nCase: ${c?.caseNumber||''}`)}`,'_blank');
             }
             
-            async deleteBilling(id) { if(!confirm('Delete?')) return; await fb.delete('billings', id); this.ui.showSuccess('Deleted', 'Success'); }
+            async deleteBilling(id) { if(!confirm('Delete?')) return; await fb.delete('billings', id); this.ui.showSuccess('Deleted', 'Success'); await this.loadData(); }
             
             addProceeding(caseId) {
                 const c = state.getState('cases').find(x=>x.id===caseId);
@@ -1110,10 +1314,10 @@
                     <div class="modal-body">
                         <div class="form-group"><label>Case</label><input class="form-input" value="${c?.caseNumber} - ${c?.clientName}" readonly></div>
                         <div class="form-row"><div class="form-group"><label>Proceeding Date</label><input type="date" class="form-input" id="proceedingDate" value="${new Date().toISOString().split('T')[0]}"></div><div class="form-group"><label>Type</label><select class="form-select" id="proceedingType">${APP_CONFIG.proceedingTypes.map(t=>`<option>${t}</option>`).join('')}</select></div></div>
-                        <div class="form-group"><label>Description</label><textarea class="form-textarea" id="proceedingDesc"></textarea></div>
                         <div class="form-row"><div class="form-group"><label>Next Date <span class="required">*</span></label><input type="date" class="form-input" id="nextDate" required></div><div class="form-group"><label>Outcome</label><input class="form-input" id="outcome"></div></div>
+                        <div class="form-group"><label>Description</label><textarea class="form-textarea" id="proceedingDesc"></textarea></div>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.saveProceeding('${caseId}')">Save</button></div>
+                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-accent" onclick="app.saveProceeding('${caseId}')">Save</button></div>
                 `);
             }
             
@@ -1127,46 +1331,6 @@
                 this.ui.showSuccess('Proceeding saved', 'Success');
                 this.ui.closeModal();
                 this.checkPendingProceedings();
-            }
-            
-            async disposeProceeding(proceedingId) {
-                this.ui.openModal(`
-                    <div class="modal-header"><h3>Dispose Proceeding</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
-                    <div class="modal-body">
-                        <div class="form-group"><label>Next Hearing Date <span class="required">*</span></label><input type="date" class="form-input" id="disposeNextDate" value="${new Date().toISOString().split('T')[0]}" required></div>
-                        <div class="form-group"><label>Outcome / Remarks</label><textarea class="form-textarea" id="disposeOutcome">Disposed / Adjourned</textarea></div>
-                    </div>
-                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.confirmDispose('${proceedingId}')">Confirm</button></div>
-                `);
-            }
-            
-            async confirmDispose(proceedingId) {
-                const nextDate = document.getElementById('disposeNextDate').value;
-                const outcome = document.getElementById('disposeOutcome').value;
-                const proceeding = state.getState('proceedings').find(p => p.id === proceedingId);
-                if(proceeding) {
-                    await fb.update('proceedings', proceedingId, { nextDate, outcome, notified: true });
-                    await fb.update('cases', proceeding.caseId, { nextDate, status: 'Active' });
-                    this.ui.showSuccess('Proceeding disposed', 'Updated');
-                    await this.loadData();
-                }
-                this.ui.closeModal();
-                this.checkPendingProceedings();
-            }
-            
-            async requestNotificationPermission() {
-                if('Notification' in window) {
-                    const permission = await Notification.requestPermission();
-                    if(permission === 'granted') this.ui.showSuccess('Notifications enabled', 'Granted');
-                    else this.ui.showWarning('Permission denied', 'Notification');
-                }
-            }
-            
-            sendAllNotifications() {
-                const upcoming = state.computed.upcomingProceedings(1);
-                if(upcoming.length === 0) { this.ui.showInfo('No upcoming proceedings', 'Info'); return; }
-                upcoming.forEach(p => { if('Notification' in window && Notification.permission === 'granted') new Notification('⚖️ Proceeding', { body: `${p.caseNumber} - ${p.clientName}\n${p.nextDate}` }); });
-                this.ui.showSuccess(`${upcoming.length} notifications sent`, 'Sent');
             }
         }
 
