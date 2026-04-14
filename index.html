@@ -11,7 +11,7 @@
     <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Legal%20Case%20Manager%20Pro%22,%22short_name%22:%22LCM%20Pro%22,%22theme_color%22:%22%231a237e%22,%22background_color%22:%22%23f5f7fa%22,%22display%22:%22standalone%22,%22start_url%22:%22/%22}">
     
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Firebase -->
@@ -41,6 +41,7 @@
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
             --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
             --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 40px rgba(0,0,0,0.15);
             --radius: 12px;
             --radius-sm: 8px;
             --spacing: 16px;
@@ -48,6 +49,9 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
         .app-container { display: flex; min-height: 100vh; }
+        
+        /* Urdu Font */
+        .urdu-text { font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; }
         
         /* Sidebar */
         .sidebar { width: 280px; background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary) 100%); color: white; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); transition: transform 0.3s; }
@@ -84,6 +88,8 @@
         .btn-primary:hover { background: var(--primary-light); }
         .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
         .btn-icon { width: 40px; height: 40px; border: none; border-radius: 50%; background: var(--surface); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
         .btn-icon .badge { position: absolute; top: -4px; right: -4px; background: var(--error); color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; }
         
@@ -108,19 +114,19 @@
         .data-table { width: 100%; border-collapse: collapse; min-width: 600px; }
         .data-table th { background: var(--bg); padding: 12px 16px; text-align: left; font-weight: 600; font-size: 13px; text-transform: uppercase; color: var(--text-secondary); }
         .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+        .data-table tbody tr { cursor: pointer; transition: background 0.15s; }
+        .data-table tbody tr:hover { background: var(--bg); }
         .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
         .status-badge.active { background: rgba(76,175,80,0.1); color: var(--success); }
         .status-badge.pending { background: rgba(255,152,0,0.1); color: var(--warning); }
-        .status-badge.disposed { background: rgba(33,150,243,0.1); color: var(--info); }
         .action-buttons { display: flex; gap: 4px; }
         .btn-table { width: 32px; height: 32px; border: none; border-radius: 6px; background: transparent; color: var(--text-secondary); cursor: pointer; }
         .btn-table:hover { background: var(--primary); color: white; }
-        .btn-table.delete:hover { background: var(--error); }
         
         /* Modal */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-overlay.active { display: flex; }
-        .modal-container { background: var(--surface); border-radius: 20px; max-width: 550px; width: 90%; max-height: 85vh; overflow-y: auto; }
+        .modal-container { background: var(--surface); border-radius: 20px; max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; }
         .modal-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .modal-title { font-size: 20px; font-weight: 600; }
         .modal-close { width: 32px; height: 32px; border: none; border-radius: 8px; background: transparent; cursor: pointer; }
@@ -135,10 +141,26 @@
         .form-input, .form-select, .form-textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--surface); }
         .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,35,126,0.1); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .due-amount-display { background: var(--bg); padding: 12px; border-radius: 8px; margin-top: 8px; font-weight: 500; }
-        @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
         
-        /* Professional Toast */
+        /* Message Template Tabs */
+        .template-tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .template-tab { padding: 10px 20px; background: none; border: none; cursor: pointer; font-weight: 500; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: all 0.15s; }
+        .template-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .template-tab:hover { color: var(--primary); }
+        
+        /* Message Preview */
+        .message-preview { background: var(--bg); padding: 16px; border-radius: var(--radius); margin: 16px 0; border: 1px solid var(--border); }
+        .message-preview.urdu { font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; text-align: right; }
+        
+        /* Client Detail Card */
+        .client-detail-card { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 20px; border-radius: var(--radius); margin-bottom: 20px; }
+        .client-detail-card h3 { font-size: 24px; margin-bottom: 8px; }
+        .client-detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 16px; }
+        .detail-item { display: flex; flex-direction: column; }
+        .detail-label { font-size: 12px; opacity: 0.8; }
+        .detail-value { font-size: 16px; font-weight: 500; }
+        
+        /* Toast */
         .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: var(--surface); padding: 16px 20px; border-radius: 16px; box-shadow: var(--shadow-xl); display: flex; align-items: center; gap: 14px; min-width: 320px; border-left: 5px solid; animation: slideIn 0.3s; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(100px); } }
@@ -147,30 +169,26 @@
         .toast.error { border-left-color: var(--error); background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%); }
         .toast.error i { color: var(--error); font-size: 24px; }
         .toast.warning { border-left-color: var(--warning); background: linear-gradient(135deg, #ffffff 0%, #fff8f0 100%); }
-        .toast.warning i { color: var(--warning); font-size: 24px; }
         .toast.info { border-left-color: var(--info); background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%); }
-        .toast.info i { color: var(--info); font-size: 24px; }
         .toast-content { flex: 1; }
         .toast-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; color: var(--text); }
         .toast-message { font-size: 13px; color: var(--text-secondary); }
         .toast-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; border-radius: 6px; }
-        .toast-close:hover { background: rgba(0,0,0,0.05); color: var(--text); }
         
         /* Loading Overlay */
         .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); display: flex; justify-content: center; align-items: center; z-index: 3000; }
         .spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* Pending Proceeding Popup */
+        /* Pending Popup */
         .pending-popup { position: fixed; top: 80px; right: 20px; width: 380px; max-width: 90vw; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-xl); z-index: 1500; border-left: 5px solid var(--warning); overflow: hidden; }
         .pending-popup-header { padding: 16px; background: linear-gradient(135deg, var(--warning), #ffb74d); color: white; display: flex; justify-content: space-between; align-items: center; }
         .pending-popup-body { padding: 16px; max-height: 400px; overflow-y: auto; }
         .pending-item { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
         .pending-item:hover { background: var(--bg); }
-        .pending-item:last-child { border-bottom: none; }
-        .pending-case { font-weight: 600; color: var(--primary); }
-        .pending-client { font-size: 14px; color: var(--text-secondary); }
-        .pending-date { font-size: 12px; color: var(--error); margin-top: 4px; }
+        
+        /* Action Buttons Row */
+        .action-row { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
         
         @media (max-width: 768px) {
             .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 500; transform: translateX(-100%); }
@@ -179,11 +197,18 @@
             .search-container { display: none; }
             .quick-actions .btn span { display: none; }
             .pending-popup { top: 10px; right: 10px; left: 10px; width: auto; }
+            .client-detail-grid { grid-template-columns: 1fr; }
         }
         
         .add-client-link { color: var(--primary); cursor: pointer; font-size: 13px; margin-top: 4px; text-decoration: underline; }
         .filters-section { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
         .filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+        
+        /* Template Editor */
+        .template-editor { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-top: 16px; background: var(--bg); }
+        .template-variables { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .variable-tag { background: var(--primary); color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; cursor: pointer; }
+        .variable-tag:hover { background: var(--primary-light); }
     </style>
 </head>
 <body>
@@ -254,12 +279,30 @@
         // ========== CONFIGURATION ==========
         const CURRENCY = { code: 'PKR', symbol: 'Rs.', name: 'Pakistani Rupee', format: (amt) => 'Rs. ' + (amt || 0).toLocaleString('en-PK') };
         const FIREBASE_CONFIG = { apiKey: "AIzaSyB3F60BhQd1W2AzRfepKlULcJTEPlFvVGw", authDomain: "legal-case-management-pro.firebaseapp.com", projectId: "legal-case-management-pro", storageBucket: "legal-case-management-pro.firebasestorage.app", messagingSenderId: "1018024873539", appId: "1:1018024873539:web:f3661732b4ded21c90cef6" };
-        const APP_CONFIG = { appName: "Legal Case Manager Pro", advocate: { name: "MIAN SHAMAS ABBAS", title: "Most Experienced Advocate High Court" }, courts: ["Supreme Court of Pakistan","Lahore High Court","Islamabad High Court","Sindh High Court","Peshawar High Court","District & Sessions Court","Civil Court","Family Court","Consumer Court"], caseStatuses: ["Active","Pending","Disposed","Adjourned","Reserved","Settled"], proceedingTypes: ["Hearing","Evidence","Arguments","Cross Examination","Filing"] };
+        const APP_CONFIG = { 
+            appName: "Legal Case Manager Pro", 
+            advocate: { name: "MIAN SHAMAS ABBAS", title: "Most Experienced Advocate High Court", mobile: "xxxxd" }, 
+            courts: ["Supreme Court of Pakistan","Lahore High Court","Islamabad High Court","Sindh High Court","Peshawar High Court","District & Sessions Court","Civil Court","Family Court","Consumer Court"], 
+            caseStatuses: ["Active","Pending","Disposed","Adjourned","Reserved","Settled"], 
+            proceedingTypes: ["Hearing","Evidence","Arguments","Cross Examination","Filing"]
+        };
+
+        // Default Message Templates
+        const MESSAGE_TEMPLATES = {
+            english: {
+                hearing: `Dear {clientName},\n\nThis is to remind you about your court hearing scheduled as follows:\n\nCase No: {caseNumber}\nCourt: {courtName}\nDate: {hearingDate}\nTime: 09:00 AM\n\nPlease arrive at the court premises at least 30 minutes before the scheduled time with all relevant documents.\n\nRegards,\n{advocateName}\n{advocateTitle}`,
+                judgment: `Dear {clientName},\n\nJudgment in your case is scheduled as follows:\n\nCase No: {caseNumber}\nCourt: {courtName}\nDate: {hearingDate}\nTime: 09:00 AM\n\nYour presence is required at the court.\n\nRegards,\n{advocateName}\n{advocateTitle}`
+            },
+            urdu: {
+                hearing: `محترم {clientName} صاحب،\n\nآپ کے مقدمے کی سماعت کی تاریخ یاد دہانی:\n\nکیس نمبر: {caseNumber}\nعدالت: {courtName}\nتاریخ: {hearingDate}\nوقت: 09:00 بجے صبح\n\nبراہ کرم تمام ضروری دستاویزات کے ساتھ مقررہ وقت سے 30 منٹ پہلے عدالت پہنچیں۔\n\nشکریہ\n{advocateName}\n{advocateTitle}`,
+                judgment: `محترم {clientName} صاحب،\n\nآپ کے مقدمے کا فیصلہ درج ذیل تاریخ کو ہوگا:\n\nکیس نمبر: {caseNumber}\nعدالت: {courtName}\nتاریخ: {hearingDate}\nوقت: 09:00 بجے صبح\n\nعدالت میں آپ کی حاضری ضروری ہے۔\n\nشکریہ\n{advocateName}\n{advocateTitle}`
+            }
+        };
 
         // ========== STATE MANAGER ==========
         class StateManager {
             constructor() {
-                this.state = { isOnline: navigator.onLine, cases:[], clients:[], billings:[], proceedings:[], filters:{ searchTerm:'', courtFilter:'all', statusFilter:'all' }, activeView:'dashboard', pendingProceedings:[] };
+                this.state = { isOnline: navigator.onLine, cases:[], clients:[], billings:[], proceedings:[], filters:{ searchTerm:'', courtFilter:'all', statusFilter:'all' }, activeView:'dashboard', pendingProceedings:[], messageTemplates: MESSAGE_TEMPLATES };
                 this.subs = new Map();
                 this.loadFromStorage();
             }
@@ -272,8 +315,8 @@
             getState(k) { return k ? this.state[k] : {...this.state}; }
             subscribe(k, cb) { if(!this.subs.has(k)) this.subs.set(k,new Set()); this.subs.get(k).add(cb); return ()=>this.subs.get(k)?.delete(cb); }
             notify(changes) { for(let k in changes) { const s=this.subs.get(k); if(s) s.forEach(cb=>cb(changes[k].new,changes[k].old)); } }
-            saveToStorage() { try { localStorage.setItem('lcm_pending', JSON.stringify(this.state.pendingProceedings)); } catch(e) {} }
-            loadFromStorage() { try { const p = localStorage.getItem('lcm_pending'); if(p) this.state.pendingProceedings = JSON.parse(p); } catch(e) {} }
+            saveToStorage() { try { localStorage.setItem('lcm_templates', JSON.stringify(this.state.messageTemplates)); } catch(e) {} }
+            loadFromStorage() { try { const t = localStorage.getItem('lcm_templates'); if(t) this.state.messageTemplates = JSON.parse(t); } catch(e) {} }
             computed = {
                 filteredCases: () => {
                     const {cases, filters} = this.state;
@@ -315,10 +358,7 @@
             async read(col, constraints = []) { let q = this.db.collection(col); constraints.forEach(c => { if(c.type === 'orderBy') q = q.orderBy(c.field, c.dir || 'asc'); }); const snap = await q.get(); return snap.docs.map(d => ({ id: d.id, ...d.data() })); }
             async update(col, id, data) { await this.db.collection(col).doc(id).update({...data, updatedAt: firebase.firestore.FieldValue.serverTimestamp()}); }
             async delete(col, id) { await this.db.collection(col).doc(id).delete(); }
-            listen(col, cb) { 
-                const unsub = this.db.collection(col).onSnapshot(snap => { const docs = []; snap.docChanges().forEach(c => docs.push({ id: c.doc.id, ...c.doc.data(), changeType: c.type })); cb(docs); }, error => console.error(`Listen error:`, error));
-                this.listeners.push(unsub); return unsub;
-            }
+            listen(col, cb) { const unsub = this.db.collection(col).onSnapshot(snap => { const docs = []; snap.docChanges().forEach(c => docs.push({ id: c.doc.id, ...c.doc.data(), changeType: c.type })); cb(docs); }); this.listeners.push(unsub); return unsub; }
             cleanup() { this.listeners.forEach(u => u()); this.listeners = []; }
         }
         const fb = new FirebaseService();
@@ -366,7 +406,7 @@
                     </div>
                     <div class="pending-popup-body">
                         ${proceedings.map(p => `
-                            <div class="pending-item" onclick="app.disposeProceeding('${p.id}')">
+                            <div class="pending-item" onclick="app.showClientNotification('${p.caseId}')">
                                 <div class="pending-case">${p.caseNumber} - ${p.courtCategory}</div>
                                 <div class="pending-client">${p.clientName}</div>
                                 <div class="pending-date"><i class="fas fa-calendar"></i> Next: ${p.nextDate} | Type: ${p.proceedingType}</div>
@@ -456,7 +496,6 @@
             
             renderProceedings() {
                 const proceedings = state.getState('proceedings');
-                const cases = state.getState('cases');
                 document.getElementById('proceedingsView').innerHTML = `
                     <div class="filters-section">
                         <button class="btn btn-primary" onclick="app.navigateTo('cases')"><i class="fas fa-plus"></i> Add Proceeding from Cases</button>
@@ -464,7 +503,7 @@
                     </div>
                     <div class="data-table-container">
                         <table class="data-table"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Proceeding Date</th><th>Type</th><th>Next Date</th><th>Outcome</th><th></th></tr></thead>
-                        <tbody>${proceedings.map(p=>`<tr><td><strong>${p.caseNumber||''}</strong></td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.proceedingDate||''}</td><td>${p.proceedingType||''}</td><td style="color:var(--primary);font-weight:600;">${p.nextDate||''}</td><td>${p.outcome||'Pending'}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.viewCase('${p.caseId}')"><i class="fas fa-eye"></i></button></div></td></tr>`).join('') || '<tr><td colspan="8" style="text-align:center;">No proceedings recorded</td></tr>'}</tbody></table>
+                        <tbody>${proceedings.map(p=>`<tr><td><strong>${p.caseNumber||''}</strong></td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.proceedingDate||''}</td><td>${p.proceedingType||''}</td><td style="color:var(--primary);font-weight:600;">${p.nextDate||''}</td><td>${p.outcome||'Pending'}</td><td><div class="action-buttons"><button class="btn-table" onclick="app.showClientNotification('${p.caseId}')"><i class="fas fa-bell"></i></button></div></td></tr>`).join('') || '<tr><td colspan="8" style="text-align:center;">No proceedings recorded</td></tr>'}</tbody></table>
                     </div>
                 `;
             }
@@ -475,22 +514,37 @@
                 document.getElementById('notificationsView').innerHTML = `
                     <div class="data-table-container">
                         <div class="table-header">
-                            <span>Proceedings</span>
+                            <span>Proceedings for Client Intimation</span>
                             <select class="filter-select" id="proceedingFilter" onchange="app.filterProceedings(this.value)">
                                 <option value="1">Tomorrow's Proceedings</option>
                                 <option value="2">Day After Tomorrow</option>
                                 <option value="all">All Pending</option>
                             </select>
                         </div>
-                        <table class="data-table" id="proceedingsTable"><thead><tr><th>Case No.</th><th>Client</th><th>Court</th><th>Next Date</th><th>Type</th><th>Action</th></tr></thead>
-                        <tbody>${upcoming.map(p=>`<tr><td>${p.caseNumber||''}</td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.nextDate||''}</td><td>${p.proceedingType||''}</td><td><button class="btn-table" onclick="app.disposeProceeding('${p.id}')"><i class="fas fa-check"></i></button></td></tr>`).join('') || '<tr><td colspan="6" style="text-align:center;">No proceedings</td></tr>'}</tbody></table>
+                        <table class="data-table" id="proceedingsTable">
+                            <thead><tr><th>Case No.</th><th>Client</th><th>Mobile</th><th>Court</th><th>Next Date</th><th>Type</th></tr></thead>
+                            <tbody>
+                                ${upcoming.map(p => {
+                                    const caseData = state.getState('cases').find(c => c.id === p.caseId);
+                                    const clientData = state.getState('clients').find(c => c.id === caseData?.clientId);
+                                    return `<tr onclick="app.showClientNotification('${p.caseId}')" style="cursor:pointer;">
+                                        <td><strong>${p.caseNumber||''}</strong></td>
+                                        <td>${p.clientName||''}</td>
+                                        <td>${clientData?.mobile || 'N/A'}</td>
+                                        <td>${p.courtCategory||''}</td>
+                                        <td>${p.nextDate||''}</td>
+                                        <td>${p.proceedingType||''}</td>
+                                    </tr>`;
+                                }).join('') || '<tr><td colspan="6" style="text-align:center;">No proceedings scheduled</td></tr>'}
+                            </tbody>
+                        </table>
                     </div>
                     <div class="data-table-container" style="margin-top:20px;">
-                        <div class="table-header"><span>Notification Settings</span></div>
+                        <div class="table-header"><span>Message Template Settings</span></div>
                         <div style="padding:20px;">
-                            <p><i class="fas fa-check-circle" style="color:var(--success);"></i> Pending cases appear until disposed</p>
-                            <p><i class="fas fa-check-circle" style="color:var(--success);"></i> All amounts in PKR (Rs.)</p>
-                            <button class="btn btn-secondary" onclick="app.requestNotificationPermission()"><i class="fas fa-bell"></i> Enable Browser Notifications</button>
+                            <p><i class="fas fa-check-circle" style="color:var(--success);"></i> Click on any client row to open messaging panel</p>
+                            <p><i class="fas fa-check-circle" style="color:var(--success);"></i> Templates available in English and Urdu</p>
+                            <button class="btn btn-secondary" onclick="app.openTemplateEditor()"><i class="fas fa-edit"></i> Edit Message Templates</button>
                         </div>
                     </div>
                 `;
@@ -512,6 +566,7 @@
                 this.currentModalData = null;
                 this.isSaving = false;
                 this.returnToCaseModal = false;
+                this.currentMessageTemplate = { english: '', urdu: '' };
             }
             
             async initialize() {
@@ -626,7 +681,7 @@
                 document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
                 document.getElementById(`${view}View`).style.display = 'block';
                 state.setState({activeView: view});
-                const titles = {dashboard: 'Dashboard', cases: 'Case Management', clients: 'Client Management', billing: 'Billing & Invoices', proceedings: 'Proceedings', notifications: 'Notifications'};
+                const titles = {dashboard: 'Dashboard', cases: 'Case Management', clients: 'Client Management', billing: 'Billing & Invoices', proceedings: 'Proceedings', notifications: 'Client Intimation'};
                 document.getElementById('pageTitle').textContent = titles[view] || view;
                 this.refreshCurrentView();
                 document.getElementById('sidebar').classList.remove('mobile-open');
@@ -640,31 +695,6 @@
                 this.ui.updateBadges();
             }
             
-            async disposeProceeding(proceedingId) {
-                this.ui.openModal(`
-                    <div class="modal-header"><h3>Dispose Proceeding</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
-                    <div class="modal-body">
-                        <div class="form-group"><label>Next Hearing Date <span class="required">*</span></label><input type="date" class="form-input" id="disposeNextDate" value="${new Date().toISOString().split('T')[0]}" required></div>
-                        <div class="form-group"><label>Outcome / Remarks</label><textarea class="form-textarea" id="disposeOutcome">Disposed / Adjourned</textarea></div>
-                    </div>
-                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.confirmDispose('${proceedingId}')">Confirm</button></div>
-                `);
-            }
-            
-            async confirmDispose(proceedingId) {
-                const nextDate = document.getElementById('disposeNextDate').value;
-                const outcome = document.getElementById('disposeOutcome').value;
-                const proceeding = state.getState('proceedings').find(p => p.id === proceedingId);
-                if(proceeding) {
-                    await fb.update('proceedings', proceedingId, { nextDate, outcome, notified: true });
-                    await fb.update('cases', proceeding.caseId, { nextDate, status: 'Active' });
-                    this.ui.showSuccess('Proceeding disposed successfully', 'Updated');
-                    await this.loadData();
-                }
-                this.ui.closeModal();
-                this.checkPendingProceedings();
-            }
-            
             filterProceedings(value) {
                 let data;
                 if(value === '1') data = state.computed.upcomingProceedings(1);
@@ -673,29 +703,270 @@
                 
                 const tbody = document.querySelector('#proceedingsTable tbody');
                 if(tbody) {
-                    tbody.innerHTML = data.map(p=>`<tr><td>${p.caseNumber||''}</td><td>${p.clientName||''}</td><td>${p.courtCategory||''}</td><td>${p.nextDate||''}</td><td>${p.proceedingType||''}</td><td><button class="btn-table" onclick="app.disposeProceeding('${p.id}')"><i class="fas fa-check"></i></button></td></tr>`).join('') || '<tr><td colspan="6" style="text-align:center;">No proceedings</td></tr>';
+                    tbody.innerHTML = data.map(p => {
+                        const caseData = state.getState('cases').find(c => c.id === p.caseId);
+                        const clientData = state.getState('clients').find(c => c.id === caseData?.clientId);
+                        return `<tr onclick="app.showClientNotification('${p.caseId}')" style="cursor:pointer;">
+                            <td><strong>${p.caseNumber||''}</strong></td>
+                            <td>${p.clientName||''}</td>
+                            <td>${clientData?.mobile || 'N/A'}</td>
+                            <td>${p.courtCategory||''}</td>
+                            <td>${p.nextDate||''}</td>
+                            <td>${p.proceedingType||''}</td>
+                        </tr>`;
+                    }).join('') || '<tr><td colspan="6" style="text-align:center;">No proceedings</td></tr>';
                 }
             }
             
-            async requestNotificationPermission() {
-                if('Notification' in window) {
-                    const permission = await Notification.requestPermission();
-                    if(permission === 'granted') this.ui.showSuccess('Notifications enabled', 'Permission Granted');
-                    else this.ui.showWarning('Permission denied', 'Notification');
+            showClientNotification(caseId) {
+                const caseData = state.getState('cases').find(c => c.id === caseId);
+                if(!caseData) return;
+                
+                const clientData = state.getState('clients').find(c => c.id === caseData.clientId);
+                const proceedings = state.getState('proceedings').filter(p => p.caseId === caseId);
+                const latestProceeding = proceedings[proceedings.length - 1] || {};
+                
+                const templates = state.getState('messageTemplates');
+                const defaultMsgType = latestProceeding.proceedingType === 'Judgment' ? 'judgment' : 'hearing';
+                
+                // Generate formatted messages
+                const variables = {
+                    clientName: clientData?.fullName || 'Client',
+                    caseNumber: caseData.caseNumber || 'N/A',
+                    courtName: caseData.courtCategory || 'Court',
+                    hearingDate: latestProceeding.nextDate || caseData.nextDate || 'N/A',
+                    advocateName: APP_CONFIG.advocate.name,
+                    advocateTitle: APP_CONFIG.advocate.title
+                };
+                
+                const englishMsg = this.formatMessage(templates.english[defaultMsgType] || templates.english.hearing, variables);
+                const urduMsg = this.formatMessage(templates.urdu[defaultMsgType] || templates.urdu.hearing, variables);
+                
+                this.currentMessageTemplate = { english: englishMsg, urdu: urduMsg };
+                this.currentNotificationData = { caseData, clientData, latestProceeding };
+                
+                this.ui.openModal(`
+                    <div class="modal-header">
+                        <h3 class="modal-title"><i class="fas fa-bell"></i> Client Intimation - ${clientData?.fullName || 'Client'}</h3>
+                        <button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Client Details Card -->
+                        <div class="client-detail-card">
+                            <h3>${clientData?.fullName || 'N/A'}</h3>
+                            <div class="client-detail-grid">
+                                <div class="detail-item"><span class="detail-label">Mobile</span><span class="detail-value">${clientData?.mobile || 'N/A'}</span></div>
+                                <div class="detail-item"><span class="detail-label">Email</span><span class="detail-value">${clientData?.email || 'N/A'}</span></div>
+                                <div class="detail-item"><span class="detail-label">Case Number</span><span class="detail-value">${caseData.caseNumber || 'N/A'}</span></div>
+                                <div class="detail-item"><span class="detail-label">Court</span><span class="detail-value">${caseData.courtCategory || 'N/A'}</span></div>
+                                <div class="detail-item"><span class="detail-label">Next Date</span><span class="detail-value" style="color: var(--warning);">${latestProceeding.nextDate || caseData.nextDate || 'N/A'}</span></div>
+                                <div class="detail-item"><span class="detail-label">Proceeding Type</span><span class="detail-value">${latestProceeding.proceedingType || 'Hearing'}</span></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Message Tabs -->
+                        <div class="template-tabs">
+                            <button class="template-tab active" onclick="app.switchMessageTab('english')">English Message</button>
+                            <button class="template-tab" onclick="app.switchMessageTab('urdu')">اردو پیغام</button>
+                        </div>
+                        
+                        <!-- Message Preview -->
+                        <div id="messagePreviewEnglish" class="message-preview" style="white-space: pre-line;">${englishMsg}</div>
+                        <div id="messagePreviewUrdu" class="message-preview urdu" style="white-space: pre-line; display: none;">${urduMsg}</div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="action-row">
+                            <button class="btn btn-success" onclick="app.sendViaWhatsApp()">
+                                <i class="fab fa-whatsapp"></i> Send via WhatsApp
+                            </button>
+                            <button class="btn btn-primary" onclick="app.sendViaSMS()">
+                                <i class="fas fa-sms"></i> Send via SMS
+                            </button>
+                            <button class="btn btn-secondary" onclick="app.copyMessageToClipboard()">
+                                <i class="fas fa-copy"></i> Copy Message
+                            </button>
+                        </div>
+                        
+                        <!-- Mark as Notified -->
+                        <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
+                            <button class="btn btn-warning" onclick="app.markAsNotified('${latestProceeding.id || caseId}')">
+                                <i class="fas fa-check-double"></i> Mark as Notified / Disposed
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="app.ui.closeModal()">Close</button>
+                    </div>
+                `);
+            }
+            
+            formatMessage(template, variables) {
+                let msg = template;
+                Object.keys(variables).forEach(key => {
+                    msg = msg.replace(new RegExp(`{${key}}`, 'g'), variables[key]);
+                });
+                return msg;
+            }
+            
+            switchMessageTab(lang) {
+                document.querySelectorAll('.template-tab').forEach(t => t.classList.remove('active'));
+                event.target.classList.add('active');
+                document.getElementById('messagePreviewEnglish').style.display = lang === 'english' ? 'block' : 'none';
+                document.getElementById('messagePreviewUrdu').style.display = lang === 'urdu' ? 'block' : 'none';
+            }
+            
+            sendViaWhatsApp() {
+                const msg = document.getElementById('messagePreviewEnglish').style.display === 'none' 
+                    ? this.currentMessageTemplate.urdu 
+                    : this.currentMessageTemplate.english;
+                window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+                this.ui.showSuccess('Opening WhatsApp with formatted message', 'WhatsApp');
+            }
+            
+            sendViaSMS() {
+                const client = this.currentNotificationData?.clientData;
+                const msg = document.getElementById('messagePreviewEnglish').style.display === 'none' 
+                    ? this.currentMessageTemplate.urdu 
+                    : this.currentMessageTemplate.english;
+                if(client?.mobile) {
+                    window.open(`sms:${client.mobile}?body=${encodeURIComponent(msg)}`, '_blank');
+                    this.ui.showSuccess('Opening SMS app', 'SMS');
+                } else {
+                    this.ui.showError('No mobile number available', 'SMS Failed');
                 }
             }
             
+            copyMessageToClipboard() {
+                const msg = document.getElementById('messagePreviewEnglish').style.display === 'none' 
+                    ? this.currentMessageTemplate.urdu 
+                    : this.currentMessageTemplate.english;
+                navigator.clipboard?.writeText(msg).then(() => {
+                    this.ui.showSuccess('Message copied to clipboard', 'Copied');
+                }).catch(() => {
+                    this.ui.showError('Failed to copy message', 'Error');
+                });
+            }
+            
+            async markAsNotified(proceedingId) {
+                if(proceedingId && proceedingId !== 'undefined') {
+                    await fb.update('proceedings', proceedingId, { notified: true });
+                }
+                this.ui.showSuccess('Client marked as notified', 'Updated');
+                this.ui.closeModal();
+                this.checkPendingProceedings();
+                await this.loadData();
+            }
+            
+            openTemplateEditor() {
+                const templates = state.getState('messageTemplates');
+                this.ui.openModal(`
+                    <div class="modal-header">
+                        <h3 class="modal-title">Edit Message Templates</h3>
+                        <button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="template-variables">
+                            <span class="variable-tag" onclick="app.insertVariable('{clientName}')">{clientName}</span>
+                            <span class="variable-tag" onclick="app.insertVariable('{caseNumber}')">{caseNumber}</span>
+                            <span class="variable-tag" onclick="app.insertVariable('{courtName}')">{courtName}</span>
+                            <span class="variable-tag" onclick="app.insertVariable('{hearingDate}')">{hearingDate}</span>
+                            <span class="variable-tag" onclick="app.insertVariable('{advocateName}')">{advocateName}</span>
+                            <span class="variable-tag" onclick="app.insertVariable('{advocateTitle}')">{advocateTitle}</span>
+                        </div>
+                        
+                        <div class="template-tabs">
+                            <button class="template-tab active" onclick="app.switchEditorTab('english')">English Templates</button>
+                            <button class="template-tab" onclick="app.switchEditorTab('urdu')">Urdu Templates</button>
+                        </div>
+                        
+                        <div id="editorEnglish">
+                            <div class="form-group">
+                                <label>Hearing Reminder Template</label>
+                                <textarea class="form-textarea" id="englishHearing" rows="6">${templates.english.hearing}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Judgment Template</label>
+                                <textarea class="form-textarea" id="englishJudgment" rows="6">${templates.english.judgment}</textarea>
+                            </div>
+                        </div>
+                        
+                        <div id="editorUrdu" style="display:none;">
+                            <div class="form-group">
+                                <label>Hearing Reminder Template (Urdu)</label>
+                                <textarea class="form-textarea urdu-text" id="urduHearing" rows="6" dir="rtl">${templates.urdu.hearing}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Judgment Template (Urdu)</label>
+                                <textarea class="form-textarea urdu-text" id="urduJudgment" rows="6" dir="rtl">${templates.urdu.judgment}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="app.resetTemplates()">Reset to Default</button>
+                        <button class="btn btn-primary" onclick="app.saveTemplates()">Save Templates</button>
+                    </div>
+                `);
+                this.currentEditorTab = 'english';
+            }
+            
+            switchEditorTab(lang) {
+                document.querySelectorAll('#editorEnglish, #editorUrdu').forEach(el => el.style.display = 'none');
+                document.getElementById(`editor${lang.charAt(0).toUpperCase() + lang.slice(1)}`).style.display = 'block';
+                document.querySelectorAll('.template-tab').forEach(t => t.classList.remove('active'));
+                event.target.classList.add('active');
+                this.currentEditorTab = lang;
+            }
+            
+            insertVariable(variable) {
+                const activeEditor = document.querySelector(`#editor${this.currentEditorTab.charAt(0).toUpperCase() + this.currentEditorTab.slice(1)}`);
+                const textarea = activeEditor?.querySelector('textarea:focus');
+                if(textarea) {
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const text = textarea.value;
+                    textarea.value = text.substring(0, start) + variable + text.substring(end);
+                    textarea.focus();
+                    textarea.setSelectionRange(start + variable.length, start + variable.length);
+                }
+            }
+            
+            saveTemplates() {
+                const templates = {
+                    english: {
+                        hearing: document.getElementById('englishHearing')?.value || MESSAGE_TEMPLATES.english.hearing,
+                        judgment: document.getElementById('englishJudgment')?.value || MESSAGE_TEMPLATES.english.judgment
+                    },
+                    urdu: {
+                        hearing: document.getElementById('urduHearing')?.value || MESSAGE_TEMPLATES.urdu.hearing,
+                        judgment: document.getElementById('urduJudgment')?.value || MESSAGE_TEMPLATES.urdu.judgment
+                    }
+                };
+                state.setState({ messageTemplates: templates });
+                this.ui.showSuccess('Message templates saved successfully', 'Templates Updated');
+                this.ui.closeModal();
+            }
+            
+            resetTemplates() {
+                if(confirm('Reset all templates to default?')) {
+                    state.setState({ messageTemplates: MESSAGE_TEMPLATES });
+                    this.ui.showSuccess('Templates reset to default', 'Reset Complete');
+                    this.ui.closeModal();
+                    this.openTemplateEditor();
+                }
+            }
+            
+            // Other existing methods (showCaseModal, saveCase, etc.) remain the same...
             showCaseModal(caseData = null) {
                 const clients = state.getState('clients');
                 this.currentModalData = caseData;
                 this.ui.openModal(`
-                    <div class="modal-header"><h3 class="modal-title">${caseData ? 'Edit Case' : 'New Case Registration'}</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="modal-header"><h3>${caseData ? 'Edit Case' : 'New Case'}</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
                     <div class="modal-body">
-                        <div class="form-row"><div class="form-group"><label class="form-label">Case Number <span class="required">*</span></label><input class="form-input" id="caseNumber" value="${caseData?.caseNumber||''}" required></div>
-                        <div class="form-group"><label class="form-label">Case Title</label><input class="form-input" id="caseTitle" value="${caseData?.caseTitle||''}"></div></div>
-                        <div class="form-group"><label class="form-label">Client <span class="required">*</span></label><select class="form-select" id="clientId" required><option value="">Select Client</option>${clients.map(c=>`<option value="${c.id}" ${caseData?.clientId===c.id?'selected':''}>${c.fullName}</option>`).join('')}</select><div class="add-client-link" onclick="app.showClientModalFromCase()">+ Add New Client</div></div>
+                        <div class="form-row"><div class="form-group"><label>Case Number <span class="required">*</span></label><input class="form-input" id="caseNumber" value="${caseData?.caseNumber||''}" required></div>
+                        <div class="form-group"><label>Case Title</label><input class="form-input" id="caseTitle" value="${caseData?.caseTitle||''}"></div></div>
+                        <div class="form-group"><label>Client <span class="required">*</span></label><select class="form-select" id="clientId" required><option value="">Select</option>${clients.map(c=>`<option value="${c.id}" ${caseData?.clientId===c.id?'selected':''}>${c.fullName}</option>`).join('')}</select><div class="add-client-link" onclick="app.showClientModalFromCase()">+ Add New Client</div></div>
                         <div class="form-row"><div class="form-group"><label>Court</label><select class="form-select" id="courtCategory">${APP_CONFIG.courts.map(c=>`<option ${caseData?.courtCategory===c?'selected':''}>${c}</option>`).join('')}</select></div><div class="form-group"><label>Case Type</label><input class="form-input" id="caseType" value="${caseData?.caseType||''}"></div></div>
-                        <div class="form-row"><div class="form-group"><label>Filing Date</label><input type="date" class="form-input" id="filingDate" value="${caseData?.filingDate||''}"></div><div class="form-group"><label>Total Fees (${CURRENCY.symbol})</label><input type="number" class="form-input" id="totalFees" value="${caseData?.totalFees||''}" min="0"></div></div>
+                        <div class="form-row"><div class="form-group"><label>Filing Date</label><input type="date" class="form-input" id="filingDate" value="${caseData?.filingDate||''}"></div><div class="form-group"><label>Total Fees (Rs.)</label><input type="number" class="form-input" id="totalFees" value="${caseData?.totalFees||''}" min="0"></div></div>
                         <div class="form-row"><div class="form-group"><label>Status</label><select class="form-select" id="status">${APP_CONFIG.caseStatuses.map(s=>`<option ${caseData?.status===s?'selected':(s==='Active'&&!caseData?'selected':'')}>${s}</option>`).join('')}</select></div><div class="form-group"><label>Next Hearing</label><input type="date" class="form-input" id="nextDate" value="${caseData?.nextDate||''}"></div></div>
                         <div class="form-group"><label>Description</label><textarea class="form-textarea" id="description">${caseData?.description||''}</textarea></div>
                     </div>
@@ -703,11 +974,7 @@
                 `);
             }
             
-            showClientModalFromCase() {
-                this.returnToCaseModal = true;
-                this.ui.closeModal();
-                this.showClientModal();
-            }
+            showClientModalFromCase() { this.returnToCaseModal = true; this.ui.closeModal(); this.showClientModal(); }
             
             async saveCase(id) {
                 if(this.isSaving) return;
@@ -722,20 +989,19 @@
                     const data = { caseNumber, caseTitle: document.getElementById('caseTitle').value, clientId, clientName: client?.fullName || '', courtCategory: document.getElementById('courtCategory').value, caseType: document.getElementById('caseType').value, filingDate: document.getElementById('filingDate').value, totalFees: parseFloat(document.getElementById('totalFees').value)||0, status: document.getElementById('status').value, nextDate: document.getElementById('nextDate').value, description: document.getElementById('description').value };
                     if(id) await fb.update('cases', id, data);
                     else await fb.create('cases', data);
-                    this.ui.showSuccess(`Case ${caseNumber} ${id?'updated':'registered'} successfully`, id?'Case Updated':'Case Created');
+                    this.ui.showSuccess(`Case ${caseNumber} ${id?'updated':'registered'}`, 'Success');
                     await this.loadData();
                     this.ui.closeModal();
-                } catch(e) { this.ui.showError(e.message, 'Save Failed'); btn.disabled = false; } 
+                } catch(e) { this.ui.showError(e.message, 'Error'); btn.disabled = false; } 
                 finally { this.isSaving = false; }
             }
             
             editCase(id) { const c = state.getState('cases').find(c=>c.id===id); if(c) this.showCaseModal(c); }
-            viewCase(id) { this.navigateTo('cases'); }
-            async deleteCase(id) { if(!confirm('Delete this case?')) return; await fb.delete('cases', id); this.ui.showSuccess('Case deleted', 'Deleted'); await this.loadData(); }
+            async deleteCase(id) { if(!confirm('Delete?')) return; await fb.delete('cases', id); this.ui.showSuccess('Case deleted', 'Deleted'); await this.loadData(); }
             
             showClientModal(clientData = null) {
                 this.ui.openModal(`
-                    <div class="modal-header"><h3>${clientData?'Edit Client':'New Client Registration'}</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="modal-header"><h3>${clientData?'Edit Client':'New Client'}</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
                     <div class="modal-body">
                         <div class="form-group"><label>Full Name <span class="required">*</span></label><input class="form-input" id="fullName" value="${clientData?.fullName||''}" required></div>
                         <div class="form-row"><div class="form-group"><label>Mobile <span class="required">*</span></label><input class="form-input" id="mobile" value="${clientData?.mobile||''}" required></div><div class="form-group"><label>Email</label><input type="email" class="form-input" id="email" value="${clientData?.email||''}"></div></div>
@@ -756,26 +1022,26 @@
                     const data = { fullName, mobile, email: document.getElementById('email').value, address: document.getElementById('address').value };
                     if(id) await fb.update('clients', id, data);
                     else await fb.create('clients', data);
-                    this.ui.showSuccess(`Client ${fullName} ${id?'updated':'registered'} successfully`, id?'Client Updated':'Client Created');
+                    this.ui.showSuccess(`Client ${fullName} ${id?'updated':'registered'}`, 'Success');
                     await this.loadData();
                     this.ui.closeModal();
                     if(this.returnToCaseModal) { this.returnToCaseModal = false; setTimeout(() => this.showCaseModal(), 100); }
-                } catch(e) { this.ui.showError(e.message, 'Save Failed'); btn.disabled = false; } 
+                } catch(e) { this.ui.showError(e.message, 'Error'); btn.disabled = false; } 
                 finally { this.isSaving = false; }
             }
             
             editClient(id) { const c = state.getState('clients').find(c=>c.id===id); if(c) this.showClientModal(c); }
-            async deleteClient(id) { if(!confirm('Delete client?')) return; await fb.delete('clients', id); this.ui.showSuccess('Client deleted', 'Deleted'); await this.loadData(); }
+            async deleteClient(id) { if(!confirm('Delete?')) return; await fb.delete('clients', id); this.ui.showSuccess('Client deleted', 'Deleted'); await this.loadData(); }
             
             showBillingModal(caseId = null) {
                 const cases = state.getState('cases').filter(c=>(c.totalFees||0)>0);
-                if(!cases.length) { this.ui.showWarning('No cases with fees found', 'No Cases'); return; }
+                if(!cases.length) { this.ui.showWarning('No cases with fees', 'No Cases'); return; }
                 this.ui.openModal(`
                     <div class="modal-header"><h3>Record Payment</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
                     <div class="modal-body">
                         <div class="form-group"><label>Select Case</label><select class="form-select" id="billingCaseId" required onchange="app.updateDueDisplay()"><option value="">Select</option>${cases.map(c=>{ const paid=state.getState('billings').filter(b=>b.caseId===c.id).reduce((s,b)=>s+b.amount,0); const due = c.totalFees - paid; return `<option value="${c.id}" data-due="${due}" ${caseId===c.id?'selected':''}>${c.caseNumber} - ${c.clientName}</option>`; }).join('')}</select></div>
                         <div class="due-amount-display" id="dueAmountDisplay">Select a case to see due amount</div>
-                        <div class="form-row"><div class="form-group"><label>Amount (${CURRENCY.symbol})</label><input type="number" class="form-input" id="paymentAmount" min="1" required></div><div class="form-group"><label>Method</label><select class="form-select" id="paymentMethod"><option>Cash</option><option>Bank Transfer</option><option>JazzCash/EasyPaisa</option></select></div></div>
+                        <div class="form-row"><div class="form-group"><label>Amount (Rs.)</label><input type="number" class="form-input" id="paymentAmount" min="1" required></div><div class="form-group"><label>Method</label><select class="form-select" id="paymentMethod"><option>Cash</option><option>Bank Transfer</option><option>JazzCash/EasyPaisa</option></select></div></div>
                         <div class="form-group"><label>Date</label><input type="date" class="form-input" id="paymentDate" value="${new Date().toISOString().split('T')[0]}"></div>
                         <div class="form-group"><label>Description</label><textarea class="form-textarea" id="paymentDescription"></textarea></div>
                     </div>
@@ -797,14 +1063,13 @@
             async saveBilling() {
                 const caseId = document.getElementById('billingCaseId').value;
                 const amount = parseFloat(document.getElementById('paymentAmount').value);
-                if(!caseId || !amount) return this.ui.showError('Select case and enter amount', 'Invalid Input');
+                if(!caseId || !amount) return this.ui.showError('Select case and amount', 'Error');
                 const opt = document.getElementById('billingCaseId').options[document.getElementById('billingCaseId').selectedIndex];
                 const due = parseFloat(opt?.dataset?.due) || 0;
-                if(amount > due) return this.ui.showError(`Amount exceeds due amount (${CURRENCY.format(due)})`, 'Invalid Amount');
-                
+                if(amount > due) return this.ui.showError(`Amount exceeds due (${CURRENCY.format(due)})`, 'Error');
                 const data = { caseId, amount, paymentMethod: document.getElementById('paymentMethod').value, paymentDate: document.getElementById('paymentDate').value, description: document.getElementById('paymentDescription').value, invoiceNumber: 'INV-'+Date.now().toString().slice(-8) };
                 const res = await fb.create('billings', data);
-                this.ui.showSuccess(`Payment of ${CURRENCY.format(amount)} recorded. Invoice generated.`, 'Payment Successful');
+                this.ui.showSuccess(`Payment of ${CURRENCY.format(amount)} recorded`, 'Success');
                 this.ui.closeModal();
                 this.generateInvoice(res.id);
             }
@@ -825,7 +1090,7 @@
                     doc.text(`Advocate: ${APP_CONFIG.advocate.name}`,20,65); doc.text(`Client: ${cl?.fullName||''}`,120,65);
                     doc.autoTable({ startY:80, head:[['Description','Amount (PKR)']], body:[['Total Fees',CURRENCY.format(c?.totalFees||0)],['This Payment',CURRENCY.format(b.amount)],['Total Paid',CURRENCY.format(paid)],['Balance Due',CURRENCY.format(due)]], theme:'grid', headStyles:{fillColor:[26,35,126]} });
                     doc.save(`Invoice_${b.invoiceNumber}.pdf`);
-                } catch(e) { this.ui.showError('PDF generation failed', 'Error'); }
+                } catch(e) { this.ui.showError('PDF failed', 'Error'); }
             }
             
             shareViaWhatsApp(billingId) {
@@ -836,7 +1101,7 @@
                 window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
             }
             
-            async deleteBilling(id) { if(!confirm('Delete payment?')) return; await fb.delete('billings', id); this.ui.showSuccess('Payment deleted', 'Deleted'); }
+            async deleteBilling(id) { if(!confirm('Delete?')) return; await fb.delete('billings', id); this.ui.showSuccess('Deleted', 'Success'); }
             
             addProceeding(caseId) {
                 const c = state.getState('cases').find(x=>x.id===caseId);
@@ -854,7 +1119,7 @@
             
             async saveProceeding(caseId) {
                 const nextDate = document.getElementById('nextDate').value;
-                if(!nextDate) return this.ui.showError('Next date required', 'Invalid');
+                if(!nextDate) return this.ui.showError('Next date required', 'Error');
                 const c = state.getState('cases').find(x=>x.id===caseId);
                 const data = { caseId, caseNumber: c?.caseNumber, clientName: c?.clientName, courtCategory: c?.courtCategory, proceedingDate: document.getElementById('proceedingDate').value, proceedingType: document.getElementById('proceedingType').value, description: document.getElementById('proceedingDesc').value, nextDate, outcome: document.getElementById('outcome').value, notified: false };
                 await fb.create('proceedings', data);
@@ -864,11 +1129,44 @@
                 this.checkPendingProceedings();
             }
             
+            async disposeProceeding(proceedingId) {
+                this.ui.openModal(`
+                    <div class="modal-header"><h3>Dispose Proceeding</h3><button class="modal-close" onclick="app.ui.closeModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="modal-body">
+                        <div class="form-group"><label>Next Hearing Date <span class="required">*</span></label><input type="date" class="form-input" id="disposeNextDate" value="${new Date().toISOString().split('T')[0]}" required></div>
+                        <div class="form-group"><label>Outcome / Remarks</label><textarea class="form-textarea" id="disposeOutcome">Disposed / Adjourned</textarea></div>
+                    </div>
+                    <div class="modal-footer"><button class="btn btn-secondary" onclick="app.ui.closeModal()">Cancel</button><button class="btn btn-primary" onclick="app.confirmDispose('${proceedingId}')">Confirm</button></div>
+                `);
+            }
+            
+            async confirmDispose(proceedingId) {
+                const nextDate = document.getElementById('disposeNextDate').value;
+                const outcome = document.getElementById('disposeOutcome').value;
+                const proceeding = state.getState('proceedings').find(p => p.id === proceedingId);
+                if(proceeding) {
+                    await fb.update('proceedings', proceedingId, { nextDate, outcome, notified: true });
+                    await fb.update('cases', proceeding.caseId, { nextDate, status: 'Active' });
+                    this.ui.showSuccess('Proceeding disposed', 'Updated');
+                    await this.loadData();
+                }
+                this.ui.closeModal();
+                this.checkPendingProceedings();
+            }
+            
+            async requestNotificationPermission() {
+                if('Notification' in window) {
+                    const permission = await Notification.requestPermission();
+                    if(permission === 'granted') this.ui.showSuccess('Notifications enabled', 'Granted');
+                    else this.ui.showWarning('Permission denied', 'Notification');
+                }
+            }
+            
             sendAllNotifications() {
                 const upcoming = state.computed.upcomingProceedings(1);
-                if(upcoming.length === 0) { this.ui.showInfo('No upcoming proceedings', 'Notifications'); return; }
-                upcoming.forEach(p => { if('Notification' in window && Notification.permission === 'granted') new Notification('⚖️ Proceeding Reminder', { body: `${p.caseNumber} - ${p.clientName}\n${p.nextDate} - ${p.courtCategory}` }); });
-                this.ui.showSuccess(`${upcoming.length} notification(s) sent`, 'Sent');
+                if(upcoming.length === 0) { this.ui.showInfo('No upcoming proceedings', 'Info'); return; }
+                upcoming.forEach(p => { if('Notification' in window && Notification.permission === 'granted') new Notification('⚖️ Proceeding', { body: `${p.caseNumber} - ${p.clientName}\n${p.nextDate}` }); });
+                this.ui.showSuccess(`${upcoming.length} notifications sent`, 'Sent');
             }
         }
 
